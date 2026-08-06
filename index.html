@@ -1,0 +1,1430 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f1ea" />
+  <title>واژه — بازی روزانهٔ واژه‌ها</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1ea;
+      --bg-soft: #ebe5d9;
+      --surface: #fffdf8;
+      --surface-2: #eee9df;
+      --text: #20242d;
+      --muted: #6d7280;
+      --border: #d6d0c4;
+      --border-strong: #827c71;
+      --key: #e5dfd4;
+      --key-text: #2c3038;
+      --correct: #19856d;
+      --present: #d28a2e;
+      --absent: #747b88;
+      --accent: #5847b8;
+      --accent-2: #0e7490;
+      --accent-text: #ffffff;
+      --danger: #b42318;
+      --shadow: 0 18px 50px rgb(45 38 25 / 0.14);
+      --shadow-soft: 0 8px 24px rgb(45 38 25 / 0.09);
+      --tile-size: min(12.2vw, 62px);
+      --gap: min(1.6vw, 8px);
+      font-family: Tahoma, "Noto Sans Arabic", "Noto Sans", Arial, sans-serif;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #121722;
+      --bg-soft: #171e2b;
+      --surface: #1c2330;
+      --surface-2: #283140;
+      --text: #f5f1e8;
+      --muted: #b3b7c0;
+      --border: #394252;
+      --border-strong: #778094;
+      --key: #333d4b;
+      --key-text: #f8fafc;
+      --correct: #27a98c;
+      --present: #d99a43;
+      --absent: #596171;
+      --accent: #9486ff;
+      --accent-2: #48b8d5;
+      --accent-text: #111522;
+      --danger: #ff8b80;
+      --shadow: 0 18px 52px rgb(0 0 0 / 0.38);
+      --shadow-soft: 0 8px 24px rgb(0 0 0 / 0.24);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      overscroll-behavior: none;
+    }
+
+    body {
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 12% -8%, color-mix(in srgb, var(--accent) 13%, transparent) 0, transparent 31rem),
+        radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--accent-2) 10%, transparent) 0, transparent 27rem),
+        linear-gradient(180deg, var(--bg-soft), var(--bg) 34%);
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app {
+      width: min(100%, 760px);
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+      padding: 10px clamp(7px, 2vw, 16px) max(8px, env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      min-height: 68px;
+      padding: 8px 10px;
+      border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+      border-radius: 20px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      direction: ltr;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .header-actions.end { justify-content: flex-end; }
+
+    .icon-button {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      background: var(--surface-2);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+
+    .icon-button:hover {
+      background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+      border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+    }
+
+    .icon-button:active { transform: translateY(1px); }
+
+    .icon-button:focus-visible, .key:focus-visible, .primary:focus-visible,
+    .secondary:focus-visible, .mode-pill:focus-visible, .switch:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 62%, transparent);
+      outline-offset: 2px;
+    }
+
+    .icon-button svg { width: 22px; height: 22px; }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      direction: rtl;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px 14px 14px 5px;
+      display: grid;
+      place-items: center;
+      color: var(--accent-text);
+      background: linear-gradient(145deg, var(--accent), var(--accent-2));
+      box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 28%, transparent);
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .brand-copy { text-align: right; direction: rtl; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+    }
+
+    .brand-copy span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+
+    .mode-bar {
+      min-height: 47px;
+      padding: 7px 4px 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .mode-pill {
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+      color: var(--text);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    .mode-pill:hover { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); }
+    .mode-pill:active { transform: translateY(1px); }
+    #puzzleLabel { font-variant-numeric: tabular-nums; }
+    #newRandomButton[hidden] { display: none; }
+
+    main {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 0 9px;
+    }
+
+    .board-shell {
+      width: fit-content;
+      max-width: 100%;
+      padding: clamp(11px, 2.5vw, 17px);
+      border: 1px solid var(--border);
+      border-radius: 25px 25px 25px 9px;
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .board-caption {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin: -1px 0 10px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .board-caption-mark {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-2) 13%, transparent);
+    }
+
+    #board {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      direction: ltr;
+      user-select: none;
+    }
+
+    .board-row {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: var(--gap);
+    }
+
+    .tile {
+      width: var(--tile-size);
+      height: var(--tile-size);
+      border: 1px solid var(--border);
+      border-bottom-width: 3px;
+      border-radius: 14px 14px 14px 5px;
+      display: grid;
+      place-items: center;
+      font-size: calc(var(--tile-size) * 0.5);
+      line-height: 1;
+      font-weight: 900;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 2px 7px rgb(0 0 0 / 0.035);
+      transform-origin: center;
+    }
+
+    .tile[data-filled="true"] {
+      border-color: color-mix(in srgb, var(--accent) 65%, var(--border));
+      box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 28%, var(--border));
+      animation: pop 150ms cubic-bezier(.2,.9,.3,1.25);
+    }
+
+    .tile[data-state="correct"],
+    .tile[data-state="present"],
+    .tile[data-state="absent"] {
+      border-color: transparent;
+      color: #fff;
+      box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.14), 0 4px 10px rgb(0 0 0 / 0.08);
+    }
+
+    .tile[data-state="correct"] { background: var(--correct); }
+    .tile[data-state="present"] { background: var(--present); }
+    .tile[data-state="absent"] { background: var(--absent); }
+
+    .tile.flip { animation: reveal 560ms cubic-bezier(.22,.8,.25,1); }
+    .board-row.shake { animation: shake 420ms ease; }
+    .board-row.win { animation: celebrate 760ms cubic-bezier(.18,.85,.28,1.15); }
+
+    .keyboard-wrap {
+      padding: 2px 0 0;
+    }
+
+    #keyboard {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      direction: rtl;
+      user-select: none;
+      padding: 10px 8px 9px;
+      border: 1px solid var(--border);
+      border-radius: 20px 20px 20px 7px;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+    }
+
+    .keyboard-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      direction: ltr;
+    }
+
+    .key {
+      min-width: 0;
+      height: clamp(43px, 7vh, 54px);
+      flex: 1 1 0;
+      padding: 0 2px;
+      border: 1px solid color-mix(in srgb, var(--border-strong) 25%, var(--border));
+      border-radius: 11px 11px 11px 4px;
+      background: var(--key);
+      color: var(--key-text);
+      box-shadow: 0 3px 0 color-mix(in srgb, var(--border-strong) 36%, var(--border));
+      font-size: clamp(0.86rem, 3.6vw, 1.08rem);
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      direction: rtl;
+      transition: transform 80ms ease, box-shadow 80ms ease, filter 80ms ease;
+    }
+
+    .key:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 color-mix(in srgb, var(--border-strong) 36%, var(--border));
+      filter: brightness(0.97);
+    }
+
+    .key.wide {
+      flex: 1.7 1 0;
+      font-size: 0.84rem;
+      background: color-mix(in srgb, var(--accent) 11%, var(--key));
+      border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+    }
+
+    .key[data-state="correct"], .key[data-state="present"], .key[data-state="absent"] {
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 3px 0 rgb(0 0 0 / 0.18);
+    }
+
+    .key[data-state="correct"] { background: var(--correct); }
+    .key[data-state="present"] { background: var(--present); }
+    .key[data-state="absent"] { background: var(--absent); }
+
+    .app-footer {
+      padding: 8px 8px 1px;
+      color: var(--muted);
+      font-size: 0.69rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    #toast {
+      position: fixed;
+      z-index: 100;
+      top: 88px;
+      left: 50%;
+      transform: translate(-50%, -12px);
+      max-width: min(90vw, 520px);
+      padding: 11px 17px;
+      border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+      border-radius: 14px 14px 14px 5px;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-weight: 900;
+      text-align: center;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+
+    #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgb(12 16 24 / 0.55);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop[hidden] { display: none; }
+
+    .modal {
+      width: min(100%, 510px);
+      max-height: min(88dvh, 740px);
+      overflow: auto;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 25px 25px 25px 9px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      position: relative;
+    }
+
+    .modal::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 28px;
+      width: 74px;
+      height: 5px;
+      border-radius: 0 0 8px 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .modal h2 { margin: 0 0 14px; font-size: 1.35rem; }
+    .modal h3 { margin: 20px 0 10px; font-size: 1rem; }
+    .modal p { line-height: 1.85; margin: 10px 0; }
+    .modal ul { margin: 8px 0 14px; padding-right: 22px; line-height: 1.9; }
+    .modal .close {
+      position: absolute;
+      top: 11px;
+      left: 11px;
+      border-radius: 50%;
+    }
+
+    .example-row {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 5px;
+      margin: 12px 0 7px;
+      direction: ltr;
+    }
+
+    .example-row .tile { --tile-size: 42px; font-size: 22px; }
+
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .primary, .secondary {
+      border-radius: 12px 12px 12px 4px;
+      padding: 11px 17px;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .primary {
+      border: 1px solid transparent;
+      background: var(--accent);
+      color: var(--accent-text);
+      box-shadow: 0 4px 0 color-mix(in srgb, var(--accent) 62%, #000);
+    }
+
+    .secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .primary:active, .secondary:active { transform: translateY(1px); }
+    .primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 13px 0 21px;
+      direction: ltr;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 10px 5px;
+      border: 1px solid var(--border);
+      border-radius: 14px 14px 14px 5px;
+      background: var(--surface-2);
+      text-align: center;
+    }
+
+    .stat strong { display: block; font-size: 1.55rem; color: var(--accent); }
+    .stat span { display: block; color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
+
+    .distribution { direction: ltr; display: grid; gap: 7px; }
+    .dist-row { display: grid; grid-template-columns: 22px 1fr; gap: 7px; align-items: center; }
+    .dist-label { text-align: center; font-weight: 800; }
+    .dist-bar-wrap { height: 25px; display: flex; }
+    .dist-bar {
+      min-width: 31px;
+      height: 100%;
+      padding: 0 8px;
+      border-radius: 8px 8px 8px 3px;
+      background: var(--absent);
+      color: #fff;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+    .dist-bar.highlight { background: var(--accent); color: var(--accent-text); }
+
+    .result-word {
+      padding: 10px 14px;
+      border-radius: 14px 14px 14px 5px;
+      background: color-mix(in srgb, var(--accent) 9%, var(--surface-2));
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin: 4px 0 12px;
+    }
+
+    .settings-list { display: grid; gap: 12px; }
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 15px 15px 15px 5px;
+      background: var(--surface-2);
+    }
+
+    .switch {
+      flex: 0 0 auto;
+      width: 52px;
+      height: 30px;
+      padding: 3px;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      background: var(--border-strong);
+      cursor: pointer;
+      direction: ltr;
+    }
+
+    .switch::after {
+      content: "";
+      display: block;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgb(0 0 0 / 0.22);
+      transition: transform 160ms ease;
+    }
+
+    .switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+    .switch[aria-checked="true"]::after { transform: translateX(22px); }
+
+    .small-note { color: var(--muted); font-size: 0.82rem; line-height: 1.75; }
+
+    @keyframes pop {
+      0% { transform: scale(0.9) rotate(-1deg); }
+      70% { transform: scale(1.05) rotate(0.5deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    @keyframes reveal {
+      0% { transform: scale(1) rotate(0); }
+      42% { transform: scale(0.76) rotate(-2deg); }
+      64% { transform: scale(1.07) rotate(1deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px) rotate(-0.3deg); }
+      20%, 80% { transform: translateX(4px) rotate(0.4deg); }
+      30%, 50%, 70% { transform: translateX(-7px); }
+      40%, 60% { transform: translateX(7px); }
+    }
+
+    @keyframes celebrate {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      32% { transform: translateY(-12px) rotate(-1.2deg); }
+      56% { transform: translateY(1px) rotate(0.8deg); }
+      76% { transform: translateY(-5px) rotate(-0.4deg); }
+    }
+
+    @media (max-width: 520px) {
+      .app { padding-inline: 6px; }
+      .topbar { min-height: 61px; padding-inline: 7px; border-radius: 17px; }
+      .brand-mark { width: 34px; height: 34px; border-radius: 12px 12px 12px 4px; font-size: 1.3rem; }
+      .brand-copy span { display: none; }
+      .icon-button { width: 36px; height: 36px; border-radius: 10px; }
+      .icon-button svg { width: 20px; height: 20px; }
+      .board-shell { padding: 11px; border-radius: 20px 20px 20px 7px; }
+      .board-caption { margin-bottom: 8px; }
+      #keyboard { padding-inline: 5px; }
+      .stats-grid { gap: 5px; }
+      .stat { padding-inline: 2px; }
+      .stat strong { font-size: 1.35rem; }
+    }
+
+    @media (max-height: 735px) {
+      :root { --tile-size: min(9.8vh, 55px, 12vw); }
+      .app { padding-top: 6px; }
+      .topbar { min-height: 55px; }
+      .brand-mark { width: 34px; height: 34px; }
+      .mode-bar { min-height: 37px; padding-block: 3px; }
+      .board-caption { display: none; }
+      .board-shell { padding: 9px; }
+      .key { height: clamp(37px, 6.1vh, 46px); }
+      main { padding-top: 0; padding-bottom: 4px; }
+      #keyboard { gap: 5px; padding-block: 7px; }
+      .keyboard-row { gap: 4px; }
+      .app-footer { padding-top: 5px; font-size: 0.63rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="header-actions">
+        <button class="icon-button" id="helpButton" aria-label="راهنمای بازی" title="راهنما">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.6 2.1c-.9.5-1.4 1.1-1.4 2.2"/><path d="M12 17h.01"/></svg>
+        </button>
+        <button class="icon-button" id="themeButton" aria-label="تغییر پوسته" title="تغییر پوسته">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.7 6.7 0 0 0 21 12.8Z"/></svg>
+        </button>
+      </div>
+
+      <div class="brand-lockup" aria-label="واژه، بازی پنج‌حرفی">
+        <span class="brand-mark" aria-hidden="true">و</span>
+        <div class="brand-copy">
+          <h1>واژه</h1>
+          <span>پنج حرف، شش فرصت</span>
+        </div>
+      </div>
+
+      <div class="header-actions end">
+        <button class="icon-button" id="statsButton" aria-label="آمار بازی" title="آمار">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        </button>
+        <button class="icon-button" id="settingsButton" aria-label="تنظیمات" title="تنظیمات">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="mode-bar">
+      <button id="modeButton" class="mode-pill" type="button">بازی روزانه</button>
+      <span id="puzzleLabel"></span>
+      <button id="newRandomButton" class="mode-pill" type="button" hidden>واژهٔ تازه</button>
+    </div>
+
+    <main>
+      <section class="board-shell" aria-label="محدودهٔ بازی">
+        <div class="board-caption"><span class="board-caption-mark" aria-hidden="true"></span><span>حدس بزن و نشانه‌ها را دنبال کن</span></div>
+        <div id="board" role="grid" aria-label="صفحهٔ بازی، شش تلاش و پنج حرف"></div>
+      </section>
+    </main>
+
+    <div class="keyboard-wrap">
+      <div id="keyboard" aria-label="صفحه‌کلید فارسی"></div>
+    </div>
+
+    <footer class="app-footer">یک بازی مستقل فارسی · پیشرفت و آمار فقط روی همین دستگاه ذخیره می‌شود</footer>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="helpModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button class="icon-button close" data-close="helpModal" aria-label="بستن">✕</button>
+      <h2 id="helpTitle">روش بازی</h2>
+      <p>واژهٔ پنج‌حرفی را در حداکثر شش تلاش پیدا کنید. پس از هر حدس، رنگ خانه‌ها راهنمای شماست.</p>
+      <p>تنها واژه‌های موجود در فرهنگ داخلی بازی پذیرفته می‌شوند؛ این فرهنگ اکنون شامل ۱۲٬۱۰۲ واژهٔ پنج‌حرفی است.</p>
+
+      <div class="example-row" aria-label="نمونه حرف درست در جای درست">
+        <div class="tile" data-state="correct">ب</div><div class="tile">ا</div><div class="tile">ر</div><div class="tile">ا</div><div class="tile">ن</div>
+      </div>
+      <p><strong>فیروزه‌ای:</strong> حرف در واژه هست و جای آن درست است.</p>
+
+      <div class="example-row" aria-label="نمونه حرف درست در جای نادرست">
+        <div class="tile">پ</div><div class="tile" data-state="present">ا</div><div class="tile">ی</div><div class="tile">ی</div><div class="tile">ز</div>
+      </div>
+      <p><strong>کهربایی:</strong> حرف در واژه هست، اما جای آن نادرست است.</p>
+
+      <div class="example-row" aria-label="نمونه حرف ناموجود">
+        <div class="tile">م</div><div class="tile">ی</div><div class="tile" data-state="absent">د</div><div class="tile">ا</div><div class="tile">ن</div>
+      </div>
+      <p><strong>خاکستری:</strong> حرف در واژه نیست یا تعداد بیشتری از آن حدس زده‌اید.</p>
+      <ul>
+        <li>می‌توانید از صفحه‌کلید فارسی رایانه یا صفحه‌کلید روی صفحه استفاده کنید.</li>
+        <li>«ی/ي» و «ک/ك» به‌طور خودکار یکسان‌سازی می‌شوند.</li>
+        <li>در حالت روزانه، همه در همان روز یک واژه دارند. حالت تصادفی نامحدود است.</li>
+      </ul>
+      <div class="modal-actions">
+        <button class="primary" data-close="helpModal">شروع بازی</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="statsModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+      <button class="icon-button close" data-close="statsModal" aria-label="بستن">✕</button>
+      <h2 id="statsTitle">آمار</h2>
+      <div class="result-word" id="resultWord" hidden></div>
+      <div class="stats-grid">
+        <div class="stat"><strong id="playedStat">0</strong><span>بازی</span></div>
+        <div class="stat"><strong id="winStat">0</strong><span>درصد برد</span></div>
+        <div class="stat"><strong id="streakStat">0</strong><span>برد پیاپی</span></div>
+        <div class="stat"><strong id="maxStreakStat">0</strong><span>بیشترین توالی</span></div>
+      </div>
+      <h3>توزیع حدس‌ها</h3>
+      <div id="distribution" class="distribution"></div>
+      <div class="modal-actions">
+        <button class="primary" id="shareButton">اشتراک نتیجه</button>
+        <button class="secondary" id="statsNewRandomButton">بازی تصادفی تازه</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="settingsModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <button class="icon-button close" data-close="settingsModal" aria-label="بستن">✕</button>
+      <h2 id="settingsTitle">تنظیمات</h2>
+      <div class="settings-list">
+        <div class="setting-row">
+          <div><strong>پوستهٔ تیره</strong><div class="small-note">برای محیط‌های کم‌نور</div></div>
+          <button id="darkSwitch" class="switch" role="switch" aria-checked="false" aria-label="پوستهٔ تیره"></button>
+        </div>
+        <div class="setting-row">
+          <div><strong>رنگ‌های پرکنتراست</strong><div class="small-note">آبی و نارنجی به‌جای فیروزه‌ای و کهربایی</div></div>
+          <button id="contrastSwitch" class="switch" role="switch" aria-checked="false" aria-label="رنگ‌های پرکنتراست"></button>
+        </div>
+      </div>
+      <p class="small-note">تمام داده‌های بازی و آمار فقط در مرورگر شما ذخیره می‌شوند. این برنامه هیچ اتصال اینترنتی نیاز ندارد.</p>
+    </section>
+  </div>
+
+  <script>
+    "use strict";
+
+    const WORD_LENGTH = 5;
+    const MAX_GUESSES = 6;
+    const STORAGE_KEY = "vazhe-v1";
+    const LEGACY_STORAGE_KEY = "farsi-wordle-v1";
+
+    // Curated five-letter Persian words. The list is embedded so the game works offline.
+    const SOLUTIONS = [
+      "آبشار","آتشین","آرامش","آواره","آینده","ابزار","ابرها","اتاقک","ادویه","اراده",
+      "ارزان","افسون","افطار","اقلیم","الماس","امروز","انبار","انجیر","اندوه","انگشت",
+      "انگور","انسان","اوستا","ایران","ایمان","باران","بازار","بخاری","بدبین","برادر",
+      "برگشت","برنجی","بستان","بنفشه","بهانه","بهبود","بیدار","بیمار","پاییز","پرنده",
+      "پولاد","پیاده","پیکار","پیمان","تابان","تابلو","تاریک","تبدیل","تردید","ترانه",
+      "ترسید","توانا","توپچی","تومان","تهران","جاسوس","جوانه","جانان","حادثه","حاشیه",
+      "حیران","خاموش","خندان","خیالی","دادرس","دایره","دلسوز","دندان","دویدن","دیروز",
+      "راسته","رازها","روباه","روزنه","رهایی","زبانه","زنجیر","ستاره","سرسبز","سرباز",
+      "سنگین","سیاره","شاگرد","شبانه","شیرین","صندوق","طاعون","طوفان","فرزند","فرهنگ",
+      "فریاد","قانون","کبریت","کبوتر","گیلاس","گلابی","گلدان","لبخند","ماشین","مدرسه",
+      "مرداب","مرغان","مزرعه","مسواک","معلوم","مهمان","میدان","نادان","نارنج","ناهار",
+      "ناچار","نشانه","نگران","نهالی","نوازش","ویران","یاران","یاسمن","یخچال","آبدار",
+      "اجاره","اخلاق","اژدها","اسرار","امکان","امواج","انگار","اولین","باربر","بالین",
+      "بامبو","بانکی","برنده","بریدن","بزرگی","بشقاب","بلندی","بهشتی","بیداد","بیرون",
+      "بیشتر","پارچه","پاداش","پایان","پرداز","پریدن","پزشکی","پشمال","پنهان","پوسته",
+      "پویان","تاجیک","تاریخ","ترکیب","توتون","جامعه","چپاول","حیوان","خرابی","خوراک",
+      "دوستی","رادیو","روستا","زیارت","ساحلی","سامان","ستایش","سرویس","سوغات","سیگار",
+      "شمشیر","صابون","صمیمی","طبیعی","طلایی","عدالت","عروسک","عنوان","غریبه","غمگین",
+      "فانوس","فایده","فنجان","قاچاق","کانون","کرمان","کیهان","گرامی","گرداب","گرسنه",
+      "گلبرگ","گلزار","لیوان","مارال","مبادا","مبارک","مجسمه","مراسم","مزاحم","مسافر",
+      "مسلسل","معجون","مقدار","ملایم","مملکت","مناره","موزیک","میانه","نامزد","نایاب",
+      "نتیجه","نزدیک","واقعا","وسایل","وظیفه","هفتاد","همایش","همراه","همیشه","هوایی",
+      "یونان"
+    ];
+
+    // Comprehensive offline five-letter guess dictionary.
+    // Sources merged and normalized at build time:
+    // - mrmoein/Jetbrain-spell-persian-words (MIT), 100,541-entry Persian spell-check list
+    // - mvalipour/word-list-fa (MIT)
+    // Arabic/Persian character variants, diacritics, tatweel, whitespace and ZWNJ are normalized
+    // exactly as user input is normalized below. The solution pool remains separately curated.
+    const ALLOWED_GUESSES = new Set([
+      ...SOLUTIONS,
+      ...`آباجی آباده آبادو آبادی آبایی آببند آببها آبتنی آبتین آبخست آبخور آبخیز آبدار آبداغ آبدان آبدهی آبراه آبرفت آبرنگ آبروی آبریز آبزدا آبزده آبسال آبستن آبسرد آبسنگ آبشار آبشده آبطلا آبعلی آبنما آبنمک آبنوس آبپاش آبکار آبکشی آبکوه آبگذر آبگرم آبگون آبگیر آبیار آتاری آتشبس آتشزا آتشگر آتشین آتلیه آتوسا آتیلا آثاری آجدار آجرلو آجرپز آجلان آجیدن آجیده آجیلی آجینم آختند آختید آختیم آخرسر آخرین آخشیج آخورک آخوند آدامز آدامس آدمها آدمکش آدمیت آدولف آدینه آذرخش آذرنگ آذروش آذرین آذوقه آذینی آراست آرامد آرامش آرامم آرامی آراید آرایش آرایم آرایه آرایی آرتور آردلی آرزوی آرشیو آرمان آرمید آرمین آرونی آروین آرویو آرگون آریان آزاده آزادی آزارد آزارم آزاری آزبست آزردم آزردن آزرده آزردی آزرمی آزمند آزمود آزمون آزگار آزیتا آسانی آساهی آساید آسایش آسایم آسایی آستان آستری آستین آسمان آسودم آسودن آسوده آسودی آسیاب آسیای آسیبی آسیمه آشامد آشامم آشامی آشخور آشغال آشفتم آشفتن آشفته آشفتی آشوبد آشوبم آشوبی آشوری آشپزی آشکار آشیان آغازد آغازم آغازه آغازی آغاسی آغالش آغشتم آغشتن آغشته آغشتی آفاقی آفتاب آفتزا آفتکش آفرند آفرنگ آفرید آفرین آفندی آقاسی آقالو آقایی آققلا آلاشت آلاله آلانک آلاید آلایش آلایم آلایی آلبرت آلبوم آلتمن آلرژی آلزاس آلزده آلفرد آلمان آلنده آلنپو آلودم آلودن آلوده آلودی آلونک آلوچه آلویی آلکسی آلیاژ آماده آماره آمایش آمدند آمدنی آمدید آمدیم آمرزد آمرزش آمرزم آمرزی آمرین آموخت آمودن آموزد آموزش آموزم آموزه آموزی آمپول آمیتا آمیخت آمیزد آمیزش آمیزم آمیزه آمیزی آمینه آنابت آنتون آنتیل آنتیک آنجلا آنجلس آنجلو آندرا آندره آندری آندلس آنزیم آنطرف آنطور آنقدر آنهاش آنوفل آنوقت آنژین آنگاه آنگلا آنیتا آنیما آنیون آهسته آهنبر آهنجد آهنجم آهنجی آهنگر آهنگی آهنین آهوان آوابر آواره آوازه آوانس آوایی آوران آوردم آوردن آورده آوردی آورند آورید آوریل آوریم آویخت آویزد آویزش آویزم آویزه آویزی آویشن آوینی آپاچی آپلود آپولو آچمزی آژانس آژاکس آژنده آکبند آکتور آکسان آکلاد آکندم آکندن آکنده آکندی آکنند آکنید آکنیم آکورد آگاتا آگاهی آگنده آگوست آیدین آیزاک آیزلر آیشگر آیفون آیناز آینده آیودی آیورت آیووا آیپاد آیکون آیکیو آیینه آیینی االله اباحه اباذر اباقا اباگر ابتدا ابتلا ابتنا ابجدی ابداع ابدال ابدیت ابرار ابراز ابرام ابرقو ابرها ابرهه ابریز ابریق ابزار ابصار ابطال ابطحی ابعاد ابلاغ ابلیس ابنیه ابهام ابهری ابواب ابوذر ابولا ابویی ابیات اتابک اتاقک اتانل اتاوا اتباع اتحاد اتخاذ اتراف اتراق اتریش اتساع اتصاف اتصال اتفاق اتلاف اتمام اتهام اتوکد اتکال اتیلن اتیکت اثاثه اثبات اثرات اثیری اجابت اجاره اجاری اجازت اجازه اجاقک اجاقی اجانب اجبار اجتنا اجحاف اجداد اجرام اجرای اجساد اجسام اجلاس اجلال اجماع اجمال اجناس اجنبی اجوزه احاطه احاله احباب احجار احجام احداث احدیت احراج احرار احراز احرام احزاب احزان احساس احسان احسنت احشام احضار احفاد احقاف احقاق احلام احمدی احمقی احوال احکام اخاذی اخبار اختری اختفا اخراج اخروی اخطار اخلاص اخلاط اخلاف اخلاق اخلال اخموی اخوان اخوتی اخگری اخیرا اخیرن اداتی اداره اداری ادامه ادایی ادبار ادباس ادبای ادبیت ادخال ادرات ادرار ادراک ادریس ادرین ادعای ادعیه ادغام ادهمی ادوات ادوار ادوبی ادویج ادوین ادویه ادکلن ادگار ادیان ادیبک ادیبی ادیسه ادیشن اذعان اذهان اذکار اذینه ارابه ارادت اراده ارادی اراذل اراضی اراکی ارایه ارباب اربعه اربیل ارتقا ارثیه ارجاع ارحام اردنگ اردنی اردوی ارزاق ارزان ارزند ارزید ارزیز ارزیم ارسال ارسطو ارشاد ارشدش ارشدی ارشیا ارعاب ارغاب ارفاق ارفعی ارقام ارلیچ ارمنی ارمکی ارنست ارواح اروند اروپا اروین ارژنگ ارژنی ارکان ارگان اریبی اریون اریکس اریکه اریکو اریکی ازاره ازاری ازاعی ازاله ازبهر ازبکی ازروی ازسوی ازغند ازقضا ازلیت ازمنه ازمیر ازنظر ازهار ازهری ازواج ازپیش ازگلی ازگیل اسارت اساسا اساسش اساسن اسالم اسامه اسامی اسانس اسایه اسباب اسبها اسبچه استات استاد استار استام استان استخر استرس استفن استلا استوا استون استوک استیج استیل استیو استیک اسحاق اسرار اسراف اسطبل اسطقس اسعار اسعدی اسفار اسفلی اسفنج اسفند اسقاط اسقفی اسلاف اسلام اسلاو اسلحه اسلوب اسلیم اسمبل اسمیت اسمیه اسناد اسهال اسپرت اسپرم اسپری اسپند اسپوک اسپیس اسکات اسکار اسکان اسکاچ اسکای اسکلت اسکله اسکنر اسکنه اسکیت اسیری اشارت اشاره اشاری اشاعه اشباح اشباع اشبیل اشتری اشتها اشجار اشجعی اشخاص اشرار اشراف اشراق اشربه اشرفی اشعار اشعری اشغال اشقیا اشمیت اشهدی اشپیل اشکاف اشکال اشکان اشکفت اشکوب اشکور اصابت اصالت اصحاب اصرار اصطبل اصغری اصلاح اصلان اصلیت اصناف اصنام اصوات اصولا اصولی اضافه اضافی اضداد اضرار اضعاف اضلاع اضلال اطاعت اطاقک اطاله اطراف اطراق اطریش اطعام اطعمه اطفال اطلاع اطلاق اطناب اطهار اطهری اطوار اظمین اظهار اعاجم اعاده اعاظم اعانت اعانه اعتلا اعتنا اعجاب اعجاز اعداد اعدام اعراب اعراض اعراف اعزاز اعزام اعسار اعشار اعصاب اعصار اعظمی اعقاب اعلام اعلان اعلمی اعماق اعمال اعنات اعوان اعیاد اعیان اغانی اغذیه اغراض اغراق اغفال اغماض اغنیا اغیار افادت افاده افاضت افاضل افاضه افاقه افتاد افتان افترا افتند افتید افتیم افخمی افراد افراط افرند افرنگ افروز افروغ افزار افزود افزون افساد افسار افسان افسرد افسرم افسری افسوس افسون افشار افشان افشره افشنگ افشین افصحی افضلی افطار افعال افغان افقهی افلاس افلاط افلاک افلیج افندی افواج افواه افکار افکند افکنش افکنم افکنی افگار افگند افگنم افگنی افیون افیکس اقارب اقاقی اقاله اقامت اقامه اقبال اقتدا اقتضا اقدام اقدسی اقدمی اقرار اقراض اقران اقربا اقساط اقسام اقشار اقطاب اقطار اقطاع اقلام اقلیت اقلیم اقمار اقناع اقوال اقوام اقویا الارض الاصل الاهه الاول البته البدل البرز البسه البیت التون الحاح الحاد الحاق الحان الخبر الدنگ الدول الذین الرضا الزام الزنا الساق السنه الشیخ الصاق الصبر الصخر الضرب الطاف العرب العقل العقی العلم العمر العمل العین الغرض الفاظ الفبا الفتح الفرج الفظی الفیه القاب القدس القصص القصه القول اللهم اللهی الماس المان المثل الملک المنت الموت الناز الناس النبی النگو الهام الهدی الهیه الوات الواح الوار الواط الوان الوطن الوند الویر الویس الکسی الکلش الیار الیاس الیاف الیزه الیزی الینا الیها الیهم الیوت الیور امارت اماره اماله امامت امامی امانت امانی اماها اماکن امتلا امثال امثله امجدی امداد امرار امراض امرود امروز امریه امسال امساک امشبت املاح املاک املای امنیت امنیه امهات اموات امواج اموال امویه امکان امکنه امیال امیدی امیرو امیرک امیری امیلی امینه امینی انابت انابه انارک انبار انباز انبان انبرک انبوه انبیا انبیق انترن انتها انجام انجمن انجیر انجیل انجین انحای انحنا انداز اندام اندرا اندرز اندره اندلس اندود اندوه اندکس اندکی اندیس انذار انرژی انزاب انزال انزده انزلی انزوا انساب انسان انسیه انشان انشای انصار انصاف انظار انعام انفاس انفاق انفال انفیه انقضا انهار انوار انواع انوری انوشا انوشه انکار انگار انگاز انگشت انگلس انگلک انگور انگیز اهالی اهانت اهداف اهرام اهرمن اهلیت اهمال اهمیت اهوار اهواز اهوال اهورا اهونی اواخر اواسط اوامر اوانز اوایل اوباش اوبری اوبلا اوتاد اوتار اوتلو اوحدی اودسا اوراد اوراق اورال اورده اورست اورسن اورفه اورنگ اورکت اورگن اوزار اوزان اوزون اوستا اوشین اوصاف اوصیا اوضاع اوطان اوغلو اوغلی اوقات اوقاف اولاد اولری اولیا اولین اولیه اولیک اومدن اونیل اوهام اوپرا اوژنی اویسی اویلر اپتیک اپریل اژدری اژدها اکابر اکبری اکبیر اکتاو اکتبر اکتفا اکتیو اکثرا اکراد اکرام اکران اکراه اکرمی اکسون اکسید اکسیر اکلیل اکمال اکناف اکنون اکوان اکیدا اکیپی اگرنه اگرها اگرچه اگزما اگزوز اگزیر ایادی ایازی ایالت ایبری ایبسن ایبوک ایتام ایثار ایجاب ایجاد ایجاز ایدون ایراد ایران ایرجی ایرنا ایزاک ایزدی ایزیا ایساف ایساپ ایساک ایستا ایستد ایستم ایستی ایسنا ایشان ایشون ایغور ایقان ایلات ایلاف ایلام ایلنا ایلچی ایلیا ایلیچ ایمان ایمنی ایمیل اینان اینتر اینتل اینجا اینرا اینرو اینسو اینها اینکا اینکه ایهام ایهود ایوان ایوبی ایوری ایونی ایویچ ایپنا ایگور باادب بابای بابلی بابیت بابیه باتری باتلر باتوم باتون باحال باحیا باخبر باختر باختم باختن باخته باختی باخدا باخرد باخود بادام بادبر بادزن بادقت بادپا بادکش بادیه باذوق باران باراک باربد باربر باربی بارتز بارسا بارقه بارند بارها باروت باروح بارور باروق باروک بارپر بارکد بارکش بارگه بارگی بارید باریم باریچ باریک بازار بازتر بازجو بازدم بازده بازرس بازشو بازغی بازند بازنه بازهم بازور بازوی بازگو بازید بازیم باسلق باسمه باسیل باشرف باشند باشید باشیم باصره باصری باصفا باطبی باطری باطله باطلی باطنا باطنی باعزت باغات باغچه باغچی بافتم بافتن بافته بافتی بافقی بافند بافور بافکر بافید بافیم باقری باقلا باقوت بالام بالاک بالای بالشت بالله بالند بالنگ بالون بالچه بالکن بالید بالیم بالین بامبو بامزه بامهر بامیه بانمک بانها بانکی باهدف باهمت باهنر باهوش باوفا باوند باپشت باچان باکره باکری بایدد بایدم بایدی بایرن بایست باینز بایکت بباخت ببارد ببارم بباری ببازد ببازم ببازی بباشد بباشم بباشی ببافت ببافد ببافم ببافی ببالد ببالم ببالی بباید ببخشا ببخشد ببخشم ببخشی ببراز ببران ببردم ببردی ببرشت ببرند ببرید ببریز ببریم ببستم ببستی ببلعد ببلعم ببلعی ببندد ببندم ببندی ببودم ببودی ببوسد ببوسم ببوسی ببوید ببویم ببویی ببیخت ببیزد ببیزم ببیزی ببیند ببینم ببینن ببینی بتابد بتابم بتابی بتاخت بتازد بتازم بتازی بتافت بتراش بتراو بترسد بترسم بترسی بترشد بترشم بترشی بترکد بترکم بترکی بتساز بتشکن بتفتد بتفتم بتفتی بتمرگ بتنند بتنید بتنیم بتهون بتوان بتوفد بتوفم بتوفی بتونه بتپان بتپند بتپید بتپیم بتکان بتکده بجستم بجستی بجنبد بجنبم بجنبی بجنگد بجنگم بجنگی بجهان بجهند بجهید بجهیم بجوشد بجوشم بجوشی بجوید بجویم بجویی بحران بحرین بحساب بحیرا بخارا بخارد بخارم بخاری بخاست بخاطر بخاید بخایم بخایی بختکی بختین بخراش بخرام بخردی بخرند بخروش بخرید بخریم بخزند بخزید بخزیم بخسبد بخسبم بخسبی بخشند بخشود بخشکد بخشکم بخشکی بخشید بخشیم بخصوص بخفتم بخفتی بخلند بخلید بخلیم بخمان بخمند بخمید بخمیم بخندد بخندم بخندی بخواب بخوان بخواه بخوبی بخورد بخورم بخورن بخورو بخوری بخیزد بخیزم بخیزی بخیلی بداخم بدادم بدادی بدارد بدارم بداری بداشت بداصل بداعت بداند بدانم بدانی بداهت بداهه بداوی بدایت بدایع بدبار بدبخت بدبین بدجنس بدجور بدحال بدخشی بدخلق بدخیم بددست بددهن بدذات بدران بدراه بدرخش بدرقه بدرند بدرنگ بدرود بدروم بدروی بدرید بدریم بدزدد بدزدم بدزدی بدشکل بدصدا بدصفت بدطعم بدعمل بدعنق بدعهد بدعکس بدغذا بدفحش بدفرم بدفهم بدقدم بدقلب بدقلق بدقمر بدقول بدلیل بدمزه بدمسب بدمست بدمند بدمنش بدمهر بدمید بدمیم بدنام بدنسل بدنظر بدنما بدهند بدهید بدهیم بدوان بدوخت بدوزد بدوزم بدوزی بدوشد بدوشم بدوشی بدوند بدویت بدوید بدویم بدچشم بدکار بدکنش بدکیش بدگهر بدیدم بدیدی بدیمن بدیهه بدیهی بذاته بذرگر برآمد برآید برآیم برآیی برابر براتی براثر برادر براده براری برازد برازش برازم برازی براست براعت براقی براند برانم برانی براون براگا برایت برایش برایم براین بربتن بربجه بربدم بربری بربنه بربود بربکش بربکن بربیا برتری برتند برتنم برتنی برتون برتین برجاس برجام برجهد برجهم برجهی برخشد برخشم برخشی بردار برداش بردمد بردمم بردمی بردند بردنی بردگی بردیا بردید بردیم بررسی برروی برزنت برزگر برزیل برسان برستم برستی برسند برسچه برسید برسیم برشتم برشتن برشته برشتی برشیا برطرف برعفت برعکس برغان برفاب برفتم برفتی برفرض برقان برقصد برقصم برقصی برلین برمان برمتن برمجه برمدم برملا برمند برمنه برمکش برمکن برمکی برمیا برمید برمیم برنار برنتن برنجد برنجم برنجه برنجک برنجی برندد برندم برنده برندی برنزه برنمی برننه برنهد برنهم برنهی برنوس برنول برنکش برنکن برنیا برهان برهما برهمن برهند برهنه برهوت برهید برهیم بروات بروبد بروبم بروبی بروتی بروجن برودت بروفت بروفه بروند برونه برونو بروید برویم برویی برچسب برچید برکات برکتی برکرد برکشد برکشم برکشی برکلی برکمپ برکند برکنش برکنم برکنی برکچی برگان برگبو برگرد برگری برگشت برگمن برگچه بریان بریخت بریدم بریدن بریده بریدی بریزد بریزم بریزی بریسد بریسم بریسی بریند برینم برینی بزادم بزادی بزارد بزارم بزاری بزازی بزاعت بزاید بزایم بزایی بزباش بزبچه بزحمت بزدلی بزدند بزدود بزدید بزدیم بزرگی بزمجه بزنند بزنید بزنیم بزوخف بزودی بزیست بزیند بزیید بزییم بسابد بسابم بسابی بساخت بسازد بسازم بسازی بساطی بسامد بسامع بساید بسایم بسایی بستاد بستان بسترد بسترم بستره بستری بستند بستنی بستها بستود بستور بستگی بستید بستیز بستیم بسران بسرشت بسرشد بسرشم بسرشی بسرعت بسرند بسرود بسرید بسریم بسزند بسزید بسزیم بسطام بسفتم بسفتی بسنبد بسنبم بسنبی بسنجد بسنجم بسنجی بسنده بسوخت بسودم بسودی بسوزد بسوزم بسوزی بسپرد بسپرم بسپری بسپوز بسگال بسیار بسیجی بشارت بشاشد بشاشم بشاشی بشتاب بشخصه بشدند بشدید بشدیم بشریت بشستم بشستی بشقاب بشلند بشلید بشلیم بشمار بشمرد بشمرم بشمری بشناس بشنود بشنوم بشنوی بشنید بشوتد بشوتم بشوتی بشورد بشورم بشوری بشوند بشوید بشویم بشویی بشکاف بشکست بشکفت بشکفد بشکفم بشکفی بشکند بشکنم بشکنی بشکوه بشیری بصورت بصیرت بصیری بضاعت بطالت بطلان بطلبد بطلبم بطلبی بطوری بطوطه بعداز بعدها بعلبک بعهده بعینه بغبغو بغداد بغران بغرنج بغرند بغرید بغریم بغلتد بغلتم بغلتی بفرسا بفرست بفرما بفروش بفریب بفشار بفشان بفشرد بفلسف بفهمد بفهمم بفهمی بقالی بقاپد بقاپم بقاپی بقایا بقایی بقبول بقدری بقراط بلاتر بلادت بلاسد بلاسم بلاسی بلاشک بلاغت بلاغی بلالی بلاهت بلاکش بلاگر بلایا بلایی بلبشو بلبله بلبلی بلدان بلدیه بلرزد بلرزم بلرزی بلسان بلعمی بلعند بلعکس بلعید بلعیم بلغار بلغزد بلغزم بلغزی بلغور بلقیس بلمند بلمید بلمیم بلندا بلندش بلندم بلندی بلنگد بلنگم بلنگی بلهوس بلوار بلوری بلوطی بلولد بلولم بلولی بلوند بلوچی بلوکه بلوکی بلژیک بلیزر بلیسد بلیسم بلیسی بلیطی بماسد بماسم بماسی بمالد بمالم بمالی بماند بمانم بمانی بمبیی بمردم بمردی بموجب بموقع بموید بمویم بمویی بمپور بمکند بمکید بمکیم بمیرد بمیرم بمیری بنابر بنادر بنارس بنازد بنازم بنازی بنالد بنالم بنالی بنامد بنامم بنامی بنایی بنبست بنتام بنحوی بنداب بندار بندال بندرت بندری بندزن بندند بندهش بندپا بندپی بندکش بندگی بندید بندیم بنزین بنشان بنشست بنشین بنفسه بنفشه بنفشی بنلاد بنمود بنهاد بنهفت بنهنب بنهند بنهید بنهیم بنواز بنورد بنوشت بنوشد بنوشم بنوشی بنویس بنکوه بنگار بنگال بنگاه بنگرد بنگرم بنگری بنگوز بنیاد بنیان بنیتو بنینی بهادر بهاره بهارک بهاری بهانه بهاول بهایم بهایی بهبود بهتاج بهتاش بهتان بهتری بهجتی بهداد بهدار بهدست بهراس بهرام بهران بهرغم بهرنگ بهروز بهزاد بهساز بهشاد بهشتم بهشتی بهشدت بهشهر بهطور بهقدر بهقصد بهلند بهلول بهلید بهلیم بهمان بهمنش بهمنی بهناز بهنام بهنظر بهنود بهنوش بهورز بهپاک بهکار بهکام بهکلی بهیار بهیمه بهینه بوآلو بواطن بواعث بوبین بوتان بوتیک بوخوم بودار بودجه بودلف بودند بودنی بودید بودیم بوران بورخس بوردو بورزد بورزم بورزی بورلو بوریا بوریس بوزان بوزدا بوزند بوزید بوزیم بوسمن بوسند بوسنی بوسید بوسیم بوشهر بوعلی بوفون بوقلم بوقچی بولتن بومهن بونصر بوکان بوکسر بوکسی بوکله بوگیر بویرا بویند بویژه بویید بوییم بویین بپاشد بپاشم بپاشی بپالا بپاید بپایم بپایی بپختم بپختی بپذیر بپران بپرست بپرسد بپرسم بپرسی بپرند بپرور بپرید بپریم بپزند بپزید بپزیم بپسند بپلاس بپلکد بپلکم بپلکی بپناه بپوسد بپوسم بپوسی بپوشد بپوشم بپوشی بپوید بپویم بپویی بپژمر بپژوه بپکند بپکید بپکیم بپیرا بپیما بپیچد بپیچم بپیچی بچاپد بچاپم بچاپی بچاید بچایم بچایی بچران بچربد بچربم بچربی بچرخد بچرخم بچرخی بچرند بچروک بچرید بچریم بچسبد بچسبم بچسبی بچسند بچسید بچسیم بچشان بچشند بچشید بچشیم بچلان بچهزا بچپان بچپند بچپید بچپیم بچکان بچکند بچکید بچکیم بچگان بچیدم بچیدی بچیند بچینم بچینی بکارت بکارد بکارم بکاری بکاست بکاشت بکاهد بکاهم بکاهی بکاود بکاوم بکاوی بکتاش بکردم بکردی بکشان بکشتم بکشتی بکشند بکشید بکشیم بکندد بکندم بکندی بکنند بکنید بکنیم بکهام بکوبد بکوبم بکوبی بکوشد بکوشم بکوشی بکوفت بکوچد بکوچم بکوچی بگاید بگایم بگایی بگداز بگذار بگذرد بگذرم بگذری بگذشت بگراز بگران بگردد بگردم بگردی بگرفت بگرود بگروم بگروی بگرید بگریز بگریم بگریی بگزار بگزید بگزین بگسار بگستر بگسست بگسلد بگسلم بگسلی بگشاد بگشتم بگشتی بگشود بگفتم بگفتن بگفتی بگمار بگماز بگنجد بگنجم بگنجی بگندد بگندم بگندی بگوار بگوزد بگوزم بگوزی بگوشم بگوید بگویم بگویچ بگویی بگیرد بگیرم بگیرن بگیری بیآرم بیابد بیابم بیابی بیاتی بیاثر بیاجر بیاخت بیادب بیارا بیارج بیارز بیازد بیازم بیازی بیاسا بیاصل بیاضی بیافت بیالا بیامد بیانی بیاور بیاکن بیاید بیایم بیاین بیایی بیبار بیبال بیباک بیبته بیبدل بیبرو بیبرگ بیبلا بیبها بیتاب بیترس بیتلز بیثمر بیجار بیجان بیجرم بیجهت بیحال بیحدی بیحرف بیحیا بیخار بیخبر بیختم بیختن بیخته بیختی بیخدا بیخرد بیخطا بیخطر بیخلل بیخود بیخون بیداد بیدار بیدبن بیدرد بیدست بیدقت بیدلی بیدوا بیدگل بیدین بیذوق بیراه بیربط بیرحم بیرزد بیرزم بیرزی بیرشک بیرقی بیرمق بیرنج بیرنگ بیروت بیروح بیرون بیریا بیریش بیزار بیزند بیزهر بیزید بیزیم بیسبب بیستم بیستی بیسخن بیسقف بیسنگ بیسیم بیشاخ بیشام بیشتر بیشرف بیشرم بیشکل بیشکک بیصبر بیصدا بیصفا بیصفت بیضرر بیضوی بیطار بیطرف بیطعم بیطمع بیعار بیعدد بیعزت بیعشق بیعفت بیعقل بیعلت بیعلم بیعمق بیعمل بیعوض بیعیب بیغار بیغال بیغذا بیغرض بیفتد بیفتم بیفتک بیفتی بیفزا بیفسر بیفضل بیفکر بیفکن بیفگن بیقدر بیقوت بیقید بیلاخ بیلان بیلزن بیلطف بیلچه بیمار بیمال بیمثل بیمحل بیمدد بیمرز بیمرگ بیمزد بیمزه بیمغز بیمنت بیمهر بیمیل بینات بینام بیندا بینسب بینظر بینظم بینقص بینمک بینند بینها بینوا بینور بینید بینیش بینیم بیهدف بیهشی بیهقی بیهمت بیهنر بیهوا بیهوش بیوزن بیوضو بیوطن بیوفا بیوقت بیوند بیونم بیونی بیوگی بیپدر بیپول بیچشم بیچون بیچیز بیژنی بیکار بیکله بیگار بیگاه بیگجه بیگلر بیگلو بییار بییال تابان تابعه تابلو تابند تابوت تابید تابیم تاتار تاثیر تاجری تاجیک تاحدی تاختم تاختن تاخته تاختی تاخیر تادیب تادیه تاراج تارزن تاریخ تاریک تازند تازگی تازید تازیم تازیک تاسچه تاسیس تاشده تافتم تافتن تافته تافتی تاقچه تالاب تالار تالاپ تالشی تالکی تالیا تالیف تامیل تامین تانکر تانکی تانگو تانیا تانیث تاوان تاویل تاکسی تاکید تاگور تایسن تایلر تایمر تایمز تایپه تایپی تایید تبادر تبادل تبارک تباری تبانی تباهی تباین تببین تبحری تبخال تبخیر تبدار تبدیل تبذیر تبرزد تبرچه تبرکی تبریز تبریه تبریک تبسمی تبشیر تبصره تبعات تبعیت تبعید تبعیض تبلرز تبلور تبلیغ تبنگو تبیان تبیره تبیین تترون تثبیت تثلیث تجارب تجارت تجاسر تجانس تجاهل تجاوز تجددی تجدید تجربت تجربه تجربی تجردی تجرید تجریش تجزیه تجلیل تجمیع تجهیز تجوید تجویز تجیری تحبیب تحدید تحذیر تحریر تحریف تحریم تحریک تحسین تحصیل تحقیر تحقیق تحلیف تحلیل تحمید تحمیق تحمیل تحویل تحکیم تحیات تخاصم تخدیر تخریب تخصیص تخطیه تخفیف تخلخل تخلصی تخلیه تخمزا تخمچه تخمیر تخمین تخوان تخییر تداخل تدارک تداعی تدافع تداول تداوم تدبیر تدریج تدریس تدعای تدفین تدقیق تدلیس تدوین تذبذب تذهیب تذکار تذکره تذکیر ترابی ترادف ترازو ترازی تراشد تراشم تراشه تراشی ترامپ ترانس ترانه تراوا تراود تراوش تراول تراوم تراوی تراکت تراکم تراکه تربتی تربچه تربیت ترتری ترتیب ترتیل ترجمه ترجیح ترجیع ترحام ترحمی ترحیم ترخون ترخیص تردست تردید ترزگه ترسان ترسند ترسید ترسیم ترشخو ترشرو ترشند ترشید ترشیم ترغیب ترفند ترفیع ترقوه ترمذی ترمیم ترنتو ترهات تروفو ترولی ترومن ترویج ترکان ترکشی ترکمن ترکند ترکیب ترکید ترکیم ترکیه تریاق تریاک تریشه تریلر تریلی تریکو تزاحم تزاید تزریق تزلزل تزویج تزویر تزکیه تزیین تسامح تساهل تساوی تسبیح تسخیر تسریع تسطیح تسلسل تسلیت تسلیم تسمیه تسنیم تسهیل تسهیم تسویر تسویه تسکین تشابه تشبیه تشتچه تشجیع تشخیص تشدید تشریح تشریع تشریف تشریک تشعشع تشنگی تشویش تشویق تشوین تشکری تشکچه تشکیل تشکیک تشییع تصاحب تصادف تصادم تصاعد تصحیح تصحیف تصحیل تصدیع تصدیق تصریح تصریف تصعید تصغیر تصفیه تصلیب تصمیم تصنعی تصنیف تصویب تصویر تضارب تضعیف تضمین تضییع تضییق تطابق تطاول تطبیق تطمیع تطهیر تطویل تظاهر تعادل تعارض تعارف تعاقب تعالی تعامد تعامل تعاون تعبدا تعبدی تعبیر تعبیه تعجبی تعجیل تعداد تعدیل تعدیه تعرفه تعریض تعریف تعریق تعزیت تعزیر تعزیه تعطیل تعظیم تعقیب تعقید تعلیق تعلیل تعلیم تعمال تعمدا تعمید تعمیر تعمیق تعمیم تعویذ تعویض تعویق تعیین تغابن تغاثه تغافل تغایر تغذیه تغلیظ تغییر تفاخر تفاضل تفاعل تفاله تفاهم تفاوت تفتان تفتند تفتگی تفتید تفتیش تفتیم تفتین تفرجی تفرشی تفرعن تفرقه تفریح تفریط تفریق تفسیر تفصیل تفضلا تفضلی تفضیل تفقدی تفلون تفلیس تفننی تفنگش تفهیم تفویض تفکیک تقابل تقارب تقارن تقاضا تقاطع تقاعد تقبیح تقدسی تقدمی تقدیر تقدیس تقدیم تقربی تقریب تقریر تقریظ تقسیط تقسیم تقصیر تقطیر تقطیع تقلیب تقلید تقلیل تقنین تقویت تقویم تقیان تقیید تلآلو تلازم تلاشی تلاطم تلافی تلاقی تلالو تلاوت تلبیس تلخاب تلخون تلخیش تلخیص تلطیف تلعیب تلغیظ تلفات تلفنی تلفکس تلفیق تلقیح تلقین تلمبه تلمود تلمیح تلنگر تلویح تمارض تماشا تماما تمامت تمامی تمایز تمایل تمتعی تمثال تمثیل تمجید تمحید تمدنی تمدید تمرکز تمرگد تمرگم تمرگی تمرین تمساح تمسخر تمسکی تملیک تمهید تمکین تمیزی تمییز تنآسا تنازع تناسب تناسخ تناسل تناظر تنافر تنافی تناقض تناوب تناور تناول تنبان تنبلی تنبهی تنبور تنبیه تندآب تنداب تندخو تندرو تندری تندپز تندیس تنزیب تنزیل تنزیه تنشزا تنظیف تنظیم تنفیذ تنقیح تنقید تنقیه تننما تنوره تنورک تنویر تنوین تنپوش تنگاب تنگدل تنگنا تنگچه تنیدم تنیدن تنیده تنیدی تهاتر تهاجم تهامه تهامی تهایی تهدید تهدیگ تهذیب تهران تهریش تهلیل تهمتن تهنیت تهویه تهچین تهیات تهیگی تهییج توابع توابل تواتر توارث توازن توازی تواضع توافق توالت توالد توالی تواما توانا تواند توانس توانش توانم توانن توانی تواین توبره توبیخ توتال توتون توتیا توجهی توجیه توحید توختن تودار تودلی تودیع تورات تورام توران توریت توریس تورین توریه توزرد توزیع توزین توستر توسرخ توسری توسعه توسلی توسنی توسکا توسیع توشیح توصیف توصیه توضیح توطیه توفال توفان توفند توفید توفیر توفیق توفیم توقیر توقیع توقیف تولدو توللی تولوز تولیت تولید تومار توماس تومان تومور تونیک توهین توپاز توپچه توپچی توچال توکار توکلی توکیو توگود تپاله تپاند تپانم تپانی تپنده تپیدم تپیدن تپیده تپیدی تکابی تکاثر تکافو تکامل تکاند تکانش تکانم تکانه تکانی تکاور تکاپو تکایا تکبیت تکبیر تکتاز تکثیر تکذیب تکرار تکرقم تکروی تکریت تکریر تکریم تکزاس تکشاخ تکصدا تکضرب تکفیر تکلیف تکمله تکمیل تکنیک تکهجا تکواژ تکویر تکوین تکچرخ تکیدن تکیده تگابی تگزاس تیاتر تیانی تیتوف تیخیر تیران تیراژ تیررس تیرزن تیرچه تیرگر تیرگی تیریز تیزاب تیزتر تیزتک تیزرو تیزسر تیزپا تیزپی تیزکن تیسیس تیشرت تیغزن تیفوس تیفون تیلور تیلیف تیماج تیمار تیمور تیمچه تیوری تیولی تیپیک ثابتی ثاقبی ثالثا ثامنا ثامنی ثانوی ثانیا ثانیه ثایبی ثباتی ثروتی ثعلبی ثقلین ثلاثه ثلاثی ثمرات ثمرگی ثناگو ثنایی ثنویت ثوابی جابجا جابری جاثیه جاجرم جاجیم جادار جاذبه جارزن جارنو جاروب جارچی جاریه جاسبی جاسوس جاعلی جالوت جالیز جامدی جامعه جامچی جامگی جانان جانبه جانبی جانور جاهدی جاهلی جاوید جاکشی جاگیر جایخی جایزه جایزی جایگه جباری جبالی جبران جبروت جبریل جبلیه جبههی جبیری جبینی جداره جداسر جداول جداگر جدایی جدیدا جدیده جدیری جراحت جراحی جرارد جراره جرالد جراید جرایم جربزه جرجان جرجیا جرمزا جروین جریان جریحه جریده جریمه جرینگ جزایر جزایی جزمیت جزوات جزیره جزییت جسارت جستار جستجو جستند جستنی جستید جستیم جسمیت جسیکا جعاله جعفرخ جعفری جغتای جغجغه جغجغو جلاجل جلادت جلادی جلالت جلالی جلاگر جلایر جلایی جلدگر جلسات جلویش جلویم جلویی جلیقه جلیله جلیلی جمادی جماعت جمالش جمالی جمجمه جمرات جمشید جمعند جمعیت جملات جملهی جملگی جمهور جمیعا جمیله جمیلی جنابت جنابع جنابی جنازه جنایت جنایی جنبان جنبند جنبید جنبیم جنجال جندقی جندگی جنرال جنزده جنسیت جنوبی جنگجو جنگند جنگول جنگوک جنگید جنگیر جنگیم جنیدی جنیفر جنینی جهادی جهالت جهاند جهانم جهانی جهرمی جهشگر جهنده جهیدم جهیدن جهیده جهیدی جوآنا جوادی جوارح جوازی جوامع جوانب جوانه جوانک جوانی جواهر جوایز جوبار جودکی جوراب جورجو جوردن جورکش جوزان جوزپه جوشان جوشند جوشید جوشیم جولان جولای جولیا جونده جوهره جوهری جوپار جوکار جویان جویدم جویدن جویده جویدی جویند جوینی جویچه جویید جوییم جکسون جکوزی جگرکی جگوار جیانی جیایو جیببر جیبچه جیحان جیحون جیران جیرفت جیسون جیمیل حاتمی حاجات حاجبی حاجتی حاجیه حادثه حاذقی حارثه حاشیه حاصله حاضری حافظن حافظه حافظی حالات حالتش حالتم حالتی حالیش حالیه حامدی حامله حانیه حاکمه حاکمی حایری حایضه حایلی حباله حبسیه حبیبه حبیبی حتمیت حجاری حجازی حجامت حجتیه حجرات حجیمی حدادی حداقل حدایق حدودا حدیثه حدیثی حدیده حدیقه حراجی حرارت حراست حرافی حرامی حرفها حرمان حروفی حرکات حرکتی حریره حریری حریصی حریفی حسابش حسابی حسادت حسامی حسنات حسنلو حسنلی حسنیه حسودی حسیات حسیبی حسینت حسینه حسینی حشرات حشمتی حصارک حصاری حصانت حصیری حضانت حضرات حضرتی حضورا حضوری حظیره حفاری حفاظت حقابه حقارت حقانی حقایق حقبین حقطلب حقهای حقوقی حقگرا حقگوی حقیان حقیری حقیقت حقیقی حلاجی حلالی حلاوت حلبچه حلزون حلشده حلقوم حلقوی حلوان حلیمه حلیمی حماسه حماسی حماقت حمالی حمامی حمایت حمایل حمبلی حمدان حمزوی حملات حمیده حمیدی حمیرا حنانه حنایی حنبلی حنجره حنظله حنفیه حنیفه حنیفی حوادث حواری حواسم حواشی حواله حوالی حوایج حوریه حوزوی حوصله حوضچه حکاکی حکایت حکشده حکمتی حکمیت حکمیه حکومت حکیمه حکیمی حیاتش حیاتی حیایی حیثیت حیدری حیران حیرتی حیوان خاتمه خاتمی خاتون خاخام خادمی خاربن خارجه خارجی خارند خارکش خارکف خارکن خارید خاریم خازمی خاستم خاستن خاسته خاستی خاشاک خاشعی خاصره خاصیت خاطرم خاطره خاطری خاقان خالدی خالقی خالهی خامسا خامسی خامنه خاموش خانمی خانهی خانچه خانکی خانگی خانیک خاوری خاویر خاچیک خایسک خایند خاینی خایید خاییم خباثت خبازی خبرکش خبرگی خبیثی ختامی خجالت خجسته خجیری خداجو خدامی خدایا خدایی خدمات خدمتی خدنگی خدیجه خدیوی خذلان خرابش خرابه خرابی خرازی خراشد خراشم خراشی خراطی خرافه خرافی خرامد خرامش خرامم خرامی خرانه خربان خربزه خرجین خرخره خرخرو خرداد خردلی خردکن خرزور خرسند خرسنگ خرطوم خرفتی خرفهم خرقان خرمزی خرمست خرمگس خرناس خروار خروجی خروسه خروسک خروشد خروشم خروشی خروپف خرپول خرچنگ خرکار خرکچی خرکیف خرگاه خرگوش خریدم خریدن خریده خریدی خزاعی خزانه خزاین خزایی خزدار خزعلی خزلها خزنده خزیدم خزیدن خزیده خزیدی خزینه خسارت خساست خسبند خسبید خسبیم خستگی خسران خسروی خسیسی خشتزن خشخاش خشدار خشنود خشوعی خشونت خشکار خشکسر خشکند خشککن خشکید خشکیم خصایص خصایل خصوصا خصوصی خصومت خصیصه خضوعی خطابت خطابه خطاطی خطایا خطخطی خطدار خطرات خطرزا خطشکن خطوات خطچین خطیبی خطیری خطییه خفایا خفتان خفتند خفتگی خفتید خفتیم خفقان خفیدن خفیفی خلاشه خلاصه خلاصی خلافت خلافی خلاقه خلایق خلبان خلخال خلدون خلعتی خلنده خلنگی خلوتی خلوصی خلوضع خلکان خلیجی خلیدم خلیدن خلیده خلیدی خلیفه خلیفی خلیقی خلیلی خماری خماند خمانم خمانی خمرهی خمشده خموده خموشی خمکار خمیدم خمیدن خمیده خمیدی خمیرش خمیره خمینی خنجری خندان خندقی خندند خندهی خندید خندیم خنککن خوابت خوابد خوابم خوابک خوابی خواجه خواجو خوارج خواری خواست خوافی خوانا خواند خوانش خوانم خوانی خواهد خواهر خواهش خواهم خواهن خواهی خوبان خوبرو خودتو خودرو خودسر خودشو خودمو خوراک خورخه خوردم خوردن خورده خوردی خورشت خورند خوروی خورید خوریم خوساز خوشاب خوشبو خوشتر خوشخط خوشخو خوشدل خوشرو خوشگل خوشگو خوشیم خولیو خوناب خونین خوکچه خویشی خویین خیاره خیارک خیاطی خیالش خیالم خیالی خیامی خیانت خیبری خیرات خیران خیرگی خیرین خیریه خیزاب خیزان خیزند خیزید خیزیم خیمگی دآسیس داخله داخلی دادار داداش دادرس دادفر دادند دادنی دادور دادگر دادید دادیم داراب دارای داربی دارسی دارلو دارند داروگ دارید داریم داریو داریک داسچه داشتم داشتن داشته داشتی داعشی داعیه داغان داغون دافعه دالاس دالان دالبر دالبی دالله دالیت داماد داماش دامان دامبل دامنش دامنه دانته دانست دانشی دانند دانوب دانچه دانگی دانید دانیل دانیم داودی داوری داوود داووس داکور دایره دایما دایمی دایگی دباغی دبدبه دبلیو دبوسی دبیرک دبیری دتمار دحدوح دحلان دخالت دخانی دخترش دختره دخترک دختری ددمنش درآمد درآید درآیم درآیی دراجی درازا درازت درازک درازی درامد درامز دراند درانم درانی دراهم درایت درایر درایه درایو درباب دربار درباز دربان دربدر دربده دربرو دربست دربند دربکش دربیا درتاج درجات درحال درحول درختی درخشد درخشش درخشم درخشی درخور درداد دردار درددل دردسر دردشت دردهد دردهم دردهی دردکش درراه دررفت دررود درروم درروی درسته درستی درسدن درشتر درشتی درشکه درصدد درصدی درضمن درطول درعمل درعین درفشک درفشی درمان درمده درمرو درمکش درمیا درنده درنرو درنکش درنگش درنگی درنیا درهمی درودی دروزی دروسی دروند درونم درونه درونی دروگر دروید درویش درویم درپوش درکشد درکشم درکشی درگاه درگرو درگهی درگیر دریبل دریدا دریدم دریدن دریده دریدی دریغا دریغی دریچه دزایی دزدند دزدها دزدکی دزدید دزدیم دزفول دزیره دسایس دستار دستان دستخط دسترس دستها دستهی دستور دستکج دستکش دستکم دستکی دسیبل دسیسه دسیکا دشارژ دشتان دشتسر دشمنت دشمنی دشنام دشوار دشکچه دعاوی دعاگر دعاگو دعایی دغدغه دفاتر دفاین دفترک دفتری دفرمه دفعات دفعتا دفینه دقایق دقمرگ دقمصه دقیقا دقیقه دقیقی دلآرا دلارا دلالت دلاله دلالی دلاور دلاکش دلایل دلباز دلبرک دلبری دلبند دلتان دلتنگ دلخور دلخوش دلخون دلدار دلدرد دلربا دلرحم دلریش دلزده دلستر دلسخت دلسرد دلسنگ دلسوز دلشاد دلشده دلغشه دلفان دلفین دلقکی دلمان دلهره دلوار دلوکا دلپاک دلچسب دلکده دلکشی دلگرم دلگزا دلگشا دلگیر دلیری دلیلی دمادم دماغش دماغه دمخور دمدار دمدمه دمدمی دمساز دمسرد دمشقی دملچه دمنده دمپهن دمیاط دمیدم دمیدن دمیده دمیدی دمیرل دنایت دنایی دنبال دندان دندنه دنگال دنیای دنیرو دنیلز دنیوی دهاتی دهانه دهبری دهجوی دهخدا دهدار دهدشت دهریت دهشگر دهقان دهلزن دهلوی دهلیز دهمین دهنده دهنوی دهکده دهکرد دهگان دهیار دواری دواله دوالک دوالی دواند دوانم دوانی دواچی دوایر دوایی دوبار دوبله دوبین دوتار دوجین دوختم دوختن دوخته دوختی دودزا دودلی دودکش دوران دوررس دورود دورگه دوریس دوزند دوزنه دوزید دوزیم دوستت دوستی دوسره دوشاب دوشند دوشید دوشیم دوضرب دوغاب دوغان دوقلو دولاب دولبی دولتی دولول دولپه دولچه دومای دومین دونبش دونده دوهوا دوپلر دوچار دوچرخ دوچند دوکله دوکچه دوگان دوگرا دویدم دویدن دویده دویدی دویست دویچه دوییت دژبان دژخیم دژوان دژکام دکارت دکانم دکانه دکترا دکتری دکلره دکلمه دکوری دکوپز دکیسه دگران دیابت دیاری دیانآ دیانا دیانت دیباج دیباچ دیدار دیدرس دیدند دیدنی دیدور دیدگی دیدید دیدیم دیدیه دیراک دیررس دیروز دیرپا دیرپز دیرین دیزنی دیزین دیسکت دیسکو دیفنس دیلاق دیلمک دیلمی دیماه دینار دینام دینور دینیو دیهگو دیهیم دیوار دیوان دیوثی دیونس دیوید دیویس دیویی دیپلم دیکته دیکنز دیگرش دیگرگ دیگری دیگچه ذاکری ذایقه ذبیحی ذخایر ذخیره ذلالت ذلیلی ذهنیت ذولفق ذکاوت ذکرگو ذکریا ذیحجه ذیربط ذیروح ذینفع رابرت رابطه رابعا رابعه رابعی رابین راجرز راجعه راحتم راحتی راحله راحیل رادار رادان رادری رادعی رادفر رادنی رادکه رادیو رادیک رازقی رازها رازگو رازیر راستا راستش راسته راستی راشدی راضیه رافتش رافضی رافعی رامبد رامسر رامسس رامشه رامشی رامون رامین راندم راندن رانده راندی رانند رانکی رانید رانیل رانیم رانیه راهآب راهبر راهبه راهبی راهحل راهرو راهزن راهله راهنش راهور راوند راپرت راکبی راکعی راکون راگبی رایحه رایدر رایزن راینر رایول ربابه رباعی ربانی ربایش ربایی ربهکا ربوبی ربودم ربودن ربوده ربودی ربیعی ربیله ربینه رجاله رجایی رجحان رجزنی رجعتی رجوعی رجینا رحمان رحمتش رحمتی رحمدل رحیمی رختشو رختکن رخداد رخسار رخشان رخشند رخشید رخشیم رخصتی رخنما رخپوش ردازد ردایی ردخور ردهام ردیاب رذالت رذایل رذیلت رذیله رزاقی رزمجو رزمگه رزمین رزومه رزیتا رسالت رساله رسامی رسانا رساند رسانش رسانم رسانه رسانی رسایل رسایی رستاق رستمی رستند رستنی رستید رستیم رسمیت رسنگر رسولی رسیدم رسیدن رسیده رسیدی رسیور رشادت رشتند رشتید رشتیم رشحات رشدیه رشمال رشیدی رصدور رصدگر رضاعی رضافر رضایت رضایی رضوان رضویه رضیعی رطوبت رعایا رعایت رعموی رفاقت رفاهی رفتار رفتند رفتنی رفتگر رفتید رفتیم رفرنس رفعتی رفقای رفلکس رفورم رفوزه رفوگر رفیعی رفیقی رقابت رقاصه رقصند رقصگر رقصید رقصیم رقیبی رمالی رماند رمانس رمانم رمانی رمساق رمضان رمیدم رمیدن رمیده رمیدی رناتو رنجبر رنجند رنجور رنجکش رنجید رنجیم رندان رندند رندوم رندید رندیم رنوار رنگبر رنگرز رنگها رنگین رهاند رهانش رهانم رهانی رهاگر رهایش رهایی رهبان رهبری رهروی رهنما رهوار رهگذر رهگشا رهگیر رهیاب رهیدم رهیدن رهیده رهیدی روابط رواست رواقی روانه روانی روایت روایی روبات روباز روبان روباه روبرت روبرو روبنا روبند روبنس روبهک روبوت روبید روبیم روبین روبیک روتوش روتین روحیه رودار رودزی رودسر رودهن رودچه رودکی روروک روزبه روزتا روزنه روزنک روستا روسری روسها روسپی روسیه روسیو روشتو روشنا روشنک روشنی روشور روغنی روفتم روفتن روفته روفتی رولان رولور رولکس رومان رومرو رومیو روناس روناک رونده رونقی رونما رونیز روپوش روپیه روژان روژلب روکار روکشی روگار روگذر روگشا روگوش روگیر رویال رویان رویتر رویند رویهم رویگر روییت رویید روییم رویین رکابی رکعات رکوبا رکورد رکوعی رگبار رگبرگ رگبند رگدار رگزنی رگلاژ ریاحی ریاست ریاضت ریاضی ریایی ریتپن ریحان ریختم ریختن ریخته ریختی ریدلی ریدند ریدید ریدیم ریزند ریزگی ریزید ریزیم ریسرچ ریسمن ریسند ریسید ریسیم ریشار ریشتر ریشهر ریلکس ریمان رینند رینید رینیم ریواس ریوفت ریوفی ریچاد ریکور ریگان ریگشو ریگچه رییسه رییسی زابلی زادند زادید زادیم زارتر زارعی زارند زارید زاریم زاغان زاغچه زامبی زانتی زانوه زانکه زاهدی زاویه زاپاس زاکان زاگرب زاگرس زایده زایری زایند زایچه زایید زاییم زباله زبانا زبانش زبانم زبانه زبانی زبدگی زبرجد زبرین زبونی زبیده زبینا زجاجی زجرکش زحمات زحمتم زخایر زداگر زداید زدایش زدایم زدایی زدهام زدهای زدودم زدودن زدوده زدودی زدگان زراعت زراعی زرافه زرباف زربفت زرتشت زرخیز زرداب زردرو زردشت زردها زردپی زرسان زرفام زرفین زرقان زرمدی زرنگی زرنیخ زروان زرورق زرکوب زرگان زرگره زرگری زرگون زریاب زرینه زرینی زشتخو زشترو زعارت زعامت زعیمی زغاله زغالی زلالی زلاند زلزال زلزله زلفان زلفها زلمای زلیخا زلینگ زمامی زمانه زمانی زمختی زمردی زمزمه زمینه زمینی زنانه زنانی زنباز زنبور زنبیل زنجان زنجیر زندار زندان زندگی زندیق زندیه زندیک زنصفت زنعمو زنمان زننده زننما زنهار زنوفن زنویه زنگار زنگنه زنینه زهازه زهدان زهراب زهوار زواره زواری زوایا زواید زوبین زوجات زوجیت زوجین زودتر زودرس زودپز زوربا زورقک زورقی زورکی زورگو زوریخ زوزنی زونکن زپرتی زپلین زکریا زیادت زیاده زیادی زیارت زیبای زیتون زیدان زیدیه زیرآب زیرکی زیرین زیستم زیستن زیسته زیستی زیمبو زیمنس زینال زینبی زینتش زینتی زینلی زینگر زیوری زیپلن زیکلر ساباط سابعا سابغه سابقا سابقش سابقه سابند سابید سابیم ساتور ساتیر ساجده ساجدی ساحره ساحری ساحلی ساختم ساختن ساخته ساختی سادات سادسا سادگی ساران سارتر سارقی سارمی ساروج ساروق ساروی ساززن سازند سازید سازیم ساسات ساسان ساسون ساطور ساعات ساعتش ساعته ساعتی ساعده ساعدی ساغری ساقیا سالاد سالار سالاس سالبه سالسا سالمی سالها سالوس سالکی سالگی سامان سامرا سامره سامری سامعه ساموآ ساناز سانتا سانتر سانتی سانحه ساندز سانچز ساواک ساوجی ساوند ساویز ساویو ساچمه ساکتف ساکتی ساکنی سایبر سایلی سایند ساینس سایوز سایپا سایکس سایید ساییم سبابه سباتی سببیت سبحان سبدچه سبزیش سبعیت سبلان سبوسه سبوچه سبکدل سبکسر سبیلش سبیلو ستادم ستادن ستاده ستادی ستاره ستاری ستاند ستانم ستانه ستانی ستاید ستایش ستایم ستایی ستبری ستردم ستردن سترده ستردی سترند سترون سترگی سترید ستریم ستمکش ستمگر ستنبه ستهمی ستوار ستوان ستودم ستودن ستوده ستودی ستوری ستونک ستوهی ستیزد ستیزم ستیزه ستیزی سجاده سجادی سجاسی سجایا سجودی سحابی سحرگه سخافت سخاوت سخایا سخایی سختتر سختسر سختگی سخرگی سخنان سخنور سخنگو سدبند سدرمه سدریک سدساز سدشکن سرآبی سرآمد سرابی سراجی سراسر سرامد سراند سرانم سرانه سرانی سراپا سراچه سرایت سراید سرایش سرایم سرایه سرایی سربار سرباز سربرگ سربند سربها سربکش سرتاس سرتقی سرتیر سرتیز سرتیپ سرجمع سرجنر سرجوش سرجیو سرحال سرحان سرحدی سرخاب سرخجه سرخرو سرخرگ سرخسی سرخمو سرخود سرخور سرخوش سرخکن سرداب سردار سردرد سردست سردشت سردکن سرریز سرزدن سرزده سرزنش سرزنی سرسام سرسبد سرسبز سرسخت سرسرا سرسره سرسری سرشاخ سرشار سرشان سرشتم سرشتن سرشته سرشتی سرشند سرشور سرشکن سرشکی سرشید سرشیر سرشیم سرطان سرعین سرفصل سرلکی سرمان سرمای سرمست سرمشق سرمکش سرنکش سرهمی سرهنگ سروات سرواد سروان سروته سرودم سرودن سروده سرودی سروری سروسر سروشی سروقت سروقد سروپا سرویس سرپهن سرپوش سرپیچ سرچکش سرکار سرکشد سرکشم سرکشی سرکوب سرکیس سرکیف سرگرد سرگرم سرگین سرگیی سریاز سریال سریان سریدم سریدن سریده سریدی سریری سریشم سریعا سزایی سزیدم سزیدن سزیده سزیدی سشوار سعادت سعایت سعدون سعدیا سعودی سعیده سعیدی سفارت سفارش سفاهت سفاکی سفتند سفتید سفتیم سفسطه سفلگی سفلیس سفیان سفیدم سفیده سفیدک سفیدی سفیری سفینه سفیهی سقایت سقراط سقرمه سقلاو سقلمه سلاخی سلاست سلاسل سلاله سلامت سلامی سلانه سلاکی سلایق سلبیه سلتیک سلجوق سلسله سلطان سلطنت سلفخر سلفون سلماس سلمان سلندر سلنیم سلولز سلوکی سلیسی سلیطه سلیقه سلیمه سلیمی سماجت سماحت سماعی سمانه سماور سماوی سماکی سمایی سمبول سمزدا سمسار سمسام سمنار سمنان سمندر سمپاش سمیار سمیرا سمیرم سمیعی سمینی سنایی سنبله سنبلی سنبند سنبید سنبیم سنتها سنتور سنجاب سنجاق سنجری سنجزن سنجند سنجید سنجیم سنخیت سندان سندرم سندیت سنسور سنقره سنقرک سنقری سنندج سنوات سنچری سنکوپ سنگال سنگبر سنگدل سنگری سنگسر سنگلج سنگکی سنگین سهامی سهتار سهراب سهراه سهقلو سهمیه سهولت سهگام سهگوش سهیلا سهیلی سهیمی سوآلی سوابق سواحل سوادک سوادی سوارز سواره سواری سوالی سوانح سوایم سوبژه سوتمن سوتین سوختم سوختن سوخته سوختی سودان سودجو سودده سودلر سودند سودید سودیم سوراخ سوران سوربن سورنا سورچی سوریه سوزان سوزاک سوزند سوزنی سوزید سوزیم سوسری سوسنی سوسول سوسکو سوسیس سوغات سوفار سوفال سوفکل سوفیا سوفیه سوقات سولبس سولدو سولون سومار سومری سومین سونیا سوهان سوپاپ سوپری سوپور سوگلی سوگند سویدا سویدی سویشم سوییت سوییس سوییچ سپارد سپاسه سپاسی سپاهی سپردم سپردن سپرده سپردی سپرند سپرور سپرگر سپرید سپریم سپنتا سپنجی سپندی سپهبد سپهری سپوخت سپوری سپوزد سپوزش سپوزم سپوزی سپیده سپیدی سکانس سکایی سکتور سکرات سکرتر سکسکه سکنات سکنجی سکندر سکوبا سکوتی سکونت سکونی سکینه سگالد سگالش سگالم سگالی سگباز سگخور سگدان سگدست سگرمه سگصفت سگهای سگکشی سیاتل سیاحت سیاحی سیادت سیاره سیارک سیاری سیاست سیاسی سیاقت سیاقی سیالک سیالی سیامک سیانس سیانی سیاهه سیاهی سیاوش سیبری سیبکی سیحون سیخچه سیخکی سیدنی سیدین سیراب سیراف سیرتش سیرتی سیروز سیروس سیزده سیستم سیسرو سیسلی سیسکو سیسیل سیطره سیفان سیفون سیلاب سیلان سیلوا سیلور سیلیس سیماب سیمان سیمرغ سیمور سیموس سیمون سیمکش سیمگر سیمین سینجر سینما سینوس سینکی سینگر سینیه سیهرو سیوال سیوطی سیوند سیونل سیکات سیگار سیگما سییات شاباش شاتوت شاخاب شاخصه شاخچه شاداب شادان شادفر شارجه شارحی شاردن شارعی شارون شارژر شارگل شازده شازند شاشند شاشید شاشیم شاطری شاعره شاعرک شاعری شاغلی شاغول شافعی شاقول شالوم شالکه شامات شاملو شاملی شامپو شانسی شاهان شاهدی شاهرخ شاهرگ شاهنگ شاهپر شاهین شاپرک شاپور شاکری شاکله شاگرد شایان شایبه شایست شایعه شایقی شبانه شبانی شباهت شباکی شبتاب شبخیز شبدیز شبرنگ شبروی شبستر شبشعر شبنمی شبهات شبپره شبچره شبکار شبکور شبکیه شبگاه شبگرد شبگیر شبیری شتابد شتابم شتابی شتافت شترنگ شتیلا شتیلی شجاعت شجاعی شجونی شحنگی شخسار شخصیت شخمزن شخیصی شداید شدهام شدهای شدگان شدیدا شرابه شرارت شراره شراری شرافت شراکت شرایط شرایع شرخری شرزگی شرشره شرعیه شرلوک شروان شرودر شروری شروین شرکتی شریان شریدر شریعت شریعه شریفه شریفی شریکی شستشو شستند شستید شستیم ششلول ششلیک ششمین شطحیه شطرنج شعاری شعاعی شعایر شعبات شعبان شعبده شعرای شعررا شعریت شعوبی شعوری شعیبی شعیری شغالک شفاعت شفافی شفاها شفاهی شفایی شفتگی شفقتی شفیره شفیعش شفیعه شفیعی شفیقی شفیلد شقاقل شقاقی شقاوت شقایق شقورق شقیقه شقیقی شلاقی شلانه شلتاق شلتوک شلخته شلفیه شلمچه شلوار شلوغی شلیته شلیخا شلیدم شلیدن شلیده شلیدی شلیکی شماتت شماته شمارد شمارش شمارم شمارن شماره شماری شماست شماطه شمالی شمامه شماها شمایل شمایم شمران شمردم شمردن شمرده شمردی شمرند شمرید شمریم شمشاد شمشکی شمشیر شمعون شموشک شمیده شناخت شناسا شناسد شناسم شناسه شناسی شناعت شناور شناگر شنزار شنفتن شنودن شنوده شنوند شنوید شنویم شنپاش شنگرف شنگول شنیدم شنیدن شنیده شنیدی شهابی شهادت شهامت شهباز شهبال شهدآب شهداب شهداد شهرام شهران شهرتی شهرری شهرزی شهرضا شهرنو شهروا شهروز شهرکی شهریت شهریه شهناز شهنام شهوات شهوار شهودی شهوند شهیاد شهیار شهیدش شهیدی شهیری شواهد شوبرت شوتزن شوتند شوتید شوتیم شورآب شوراب شورای شوربا شورتک شورجه شورشی شورلت شورند شورها شوروی شورگل شورید شوریم شوستر شوشتر شوفاژ شوفته شوفری شومان شومیز شونده شوهرش شوهری شوکتی شویند شویید شوییم شپشکش شکاری شکافت شکافد شکافم شکافی شکاکی شکایت شکرآب شکراب شکرخا شکرلب شکروی شکرین شکستم شکستن شکسته شکستی شکفتم شکفتن شکفته شکفتی شکفند شکفید شکفیم شکلات شکمبه شکمها شکنجه شکنند شکنید شکنیم شکوری شکوفا شکوفه شکوفی شکوهی شکیبا شکیبی شگفتا شگفتی شیادی شیارک شیبان شیخان شیخلر شیدور شیراز شیران شیراک شیرجه شیردل شیرده شیرزن شیرود شیرچی شیرین شیشهی شیشکی شیطان شیطنت شیطون شیفته شیلات شیلان شیلنگ شیمون شینتو شیونی شیپور صابری صابون صاحاب صاحبش صاحبی صادره صادقی صارفه صارمی صاعدی صاعقه صافات صالحه صالحی صامتی صانعی صایبی صباحی صباغی صبایی صبحدم صبوحی صبوری صحابه صحاری صحافی صحبتی صحیحی صحیفه صدابر صدارت صدارس صدازا صداقت صدایت صدایش صدایم صدایی صدبار صدبرگ صدقات صدمات صدمین صدوقی صدگان صدیقه صدیقی صراحت صراحی صراطی صرافت صرافی صریحا صریحی صعوبت صعودی صغیری صفآرا صفاتی صفاری صفایی صفحات صفدری صفشکن صفوان صفوتی صفورا صفویه صفیری صقراط صلابت صلابه صلاتی صلاحی صلبیت صلبیه صلحجو صلصال صلوات صمدیه صمصام صمیمی صناعت صناعی صنایع صندلی صندوق صنعان صنعتی صنوبر صنیعی صهوده صهیون صواعق صورتا صورتش صورتک صورتی صوفیه صوفیک صولتی صومعه صیادی صیانت صیدگر صیرفی صیغهی صیقلی ضابطه ضامنی ضایعه ضخامت ضخیمی ضدجنگ ضدخبر ضرابی ضرایب ضربات ضربان ضربتی ضربدر ضرغام ضرورت ضروری ضعیفه ضعیفی ضلالت ضمانت ضمایر ضمایم ضمیری ضمیمه ضوابط ضیاعی ضیافت ضیایی ضیغمی طارقی طارمی طاعات طاعتی طاعون طاغوت طافحی طاقتم طاقچه طالبی طالشی طالعی طالوت طاهره طاهری طاوسی طاووس طایری طایفه طبابت طباخی طبالی طبایع طبرزد طبرسی طبریه طبعات طبقات طبقزن طبقکش طبلزن طبیبک طبیبی طبیعت طبیعی طخاری طراحی طراری طراوت طرایق طرفگی طرفین طرقبه طریقت طریقه طریقی طسوجی طعامی طغیان طفاری طفوری طفیلی طلاحی طلایه طلایی طلبند طلبگی طلبید طلبیم طلوعی طلیعه طماعی طنابی طنازی طنبور طنینی طهارت طهامی طهران طهوری طوایف طوران طورند طورها طوفان طوقچی طومار طویله طیاره طیبات طیران طینتی طیوری ظالمی ظاهرا ظاهری ظرافت ظرایف ظرفچی ظرفیت ظریفی ظلمات ظنینی ظهوری ظهیری ظواهر عابده عابدی عابری عاجزی عاجلا عادات عادتا عادله عادلی عارضه عارضی عارفه عارفی عاریت عاریه عازمی عاشقک عاشقی عاشور عاشیق عاصمی عاطفه عاطفی عاطلی عافیت عاقبت عاقله عاقلی عالمک عالمی عالیه عامدا عامری عاملی عاکفه عاکفی عایده عایدی عایشه عایقی عایله عبادت عبادی عبارت عباسی عباچی عبایم عبایی عبدلی عبدود عبرات عبرتی عبودی عبوسی عبیده عبیدی عتابی عتبات عتیقه عثمان عجالت عجایب عجوزه عجولی عجیبی عدالت عداوت عدلیه عدنان عدوات عدوان عدویه عدیده عذوبت عرابه عراقی عرایض عربده عربلو عربیت عرشیا عرفات عرفان عروجی عروسک عروسی عروضی عریان عریضه عریضی عزایم عزوبت عزوجل عزیری عزیزی عزیمت عسکری عسگری عشاقی عشایر عشرات عشرتی عشریه عشیره عصاره عصاری عصازن عصامی عصاچه عصایی عصبیت عصفور عصمتی عصیان عضلات عضویت عطارد عطاری عطایا عطایی عطوفت عظیمه عظیمی عفریت عفونت عفونی عفیفه عفیفی عقابی عقاید عقبات عقبری عقبکی عقربه عقربک عقربی عقلیه عقوبت عقیده عقیقه عقیقی عقیلی عقیمی علاقه علامت علامه علاوه علایق علایم علایی علفکش علقمه علمای علمیه علنقی علوفه علویه علیاف علیان علیلی علیها علیهم علیکم علیین عمادی عمارت عماره عماری عمامه عمانی عمدتا عمران عملگر عملگی عمودی عموما عمومی عمویی عمیدی عمیقا عناصر عنانی عنایت عنایه عنبری عنبیه عنصری عنقری عنوان عنینی عهدهی عوارض عواطف عواقب عوالم عوامر عوامل عواید عورتی عوعوی عکاسی عیادت عیاری عیاشی عیاضی عیالش عیالم عیالی عیانی عیبجو عیبگو عیسوی عیلام عینیت عیوضی عیوقی غارزی غازان غاشیه غافله غافلی غالبا غالبی غالیه غامضی غایات غایبی غایله غبغبه غداره غدیری غذایی غرابت غرابه غرابی غرامت غراند غرانم غرانی غرایب غرایز غرایض غرایی غربال غربتی غربیه غرغره غرغرو غرقاب غرنده غروبی غریبه غریبی غریدم غریدن غریده غریدی غریزه غریزی غریوی غزاله غزالک غزالی غزنوی غزنین غزوات غشایی غضروف غضنفر غفاری غفران غفلتا غفلتن غفوری غفیله غلامی غلتان غلتند غلتید غلتیم غلغله غلغلک غلوغش غلوگر غلیان غلیدن غلیظی غمازی غمباد غمبار غمدان غمزده غمشان غمناک غمکده غمگین غنایم غنایی غنودن غنوده غنچگی غنیمت غواصی غورگی غولچه غیابا غیابی غیاثی غیبگو غیراز غیوری فابیو فاتحه فاتحی فاجری فاجعه فاحشه فاخته فاراب فاراد فارسی فارغی فاروج فاروق فاستر فاسدی فاسقی فاصله فاضله فاضلی فاطمه فاطمی فالکن فامیل فانوس فاوست فاولر فاکتی فاکنر فایبر فایدت فایده فایزه فایزی فایقه فایقی فتاحی فتادن فتاده فتانه فتاوا فتاوی فتحعل فتراک فتوتی فتوحی فتیله فجایع فجیره فحاشی فخاری فخامت فخیمه فخیمی فدایی فدرال فراتر فراتی فراخا فراخی فرادا فرارا فرارو فراری فرازی فراست فراسو فراشی فراغت فراغی فرانس فرانک فراهم فرایض فربدی فربهی فرتاش فرتوت فرجاد فرجام فرخار فردای فردوس فردیت فردیس فردین فرزاد فرزام فرزان فرزدق فرزند فرزین فرستد فرستم فرستی فرسنگ فرسود فرسیج فرشاد فرشته فرشچی فرشید فرصتی فرضیه فرعون فرفره فرفری فرقان فرقون فرمال فرمان فرمند فرمود فرمول فرناز فرنام فرنوش فرنگس فرنگی فرهاد فرهبد فرهتی فرهنگ فرهود فروتر فروتن فروخت فرودی فروزش فروشد فروشم فروشی فروعی فروغی فرومد فروند فروهر فروکش فروید فرکار فرگرد فریاد فریال فریبا فریبد فریبم فریبی فریده فریدی فریرا فریزر فریزه فریضه فریفت فریور فزرتی فزونی فسانه فسایی فسردن فسرده فسطاط فسفات فسقلی فشارد فشارم فشارک فشاری فشاند فشانم فشانی فشردم فشردن فشرده فشردی فشفشه فشنگی فصاحت فصیحی فضاحت فضایح فضایل فضایی فضلای فضولی فضیحت فضیلت فطرتا فطریه فعالی فعلگی فعلیت فعلیه فغفور فقاهت فقدان فقرات فقرای فقیری فقیهی فلاتی فلاحت فلاحی فلاخن فلاسک فلاشر فلامک فلانی فلاپی فلاکت فلاکس فلایو فلزات فلزگر فلسفد فلسفم فلسفه فلسفی فلوبر فلوجه فلورا فلورو فلینی فلیپه فلیکس فنآور فنایی فنجان فنیقی فهانی فهرست فهمند فهمید فهمیم فهیمه فهیمی فواحش فوادی فواره فواصل فواید فوتون فوران فورزا فورمن فوریت فوریه فوزیه فولاد فولام فولکس فومنی فوژان فوکوس فوگتس فکاهی فکرتی فکسنی فکلیه فکنده فکوری فکوهی فگاری فیاضی فیدبک فیروز فیزیک فیصله فیضان فیضیه فیلتر فیلور فیلکو فیلیپ فینال فینکس فیوره فیوژن فیگور قاآنی قابله قابلی قابوس قابچه قابیل قاجار قادری قادسی قارعه قارون قازان قاسمی قاشقک قاصدک قاصدی قاطبه قاعده قافله قافیه قامتی قاموس قانعی قانون قاهره قاپند قاپید قاپیم قاچاق قایدی قایله قایمه قایمی قباحت قبادی قباله قباچه قبایح قبایل قبایی قبراق قبرکن قبولد قبولم قبولی قبیله قتاله قحبگی قداره قداست قدامی قدرتی قدسیه قدوسی قدومی قدکچی قدیری قدیسی قدیفه قدیمش قدیمی قذافی قرابت قرابه قراری قراضه قرانی قراول قرایت قراین قرایی قربان قرقره قرقری قرقیز قرمزی قرنیا قرنیز قرنیه قرهسو قرهنی قریبا قریبه قریبی قریحه قریشی قرینه قزاقی قزوین قساوت قسمتی قشریت قشقرق قشقره قشلاق قشنگی قصابی قصاری قصاید قصبات قصبچه قصران قصریک قصهگو قصیده قضاوت قضایا قضایی قطبیت قطرات قطران قطعات قطعیت قطیفه قفقاز ققنوس قلاده قلاشی قلدری قلعگر قلقلک قلمبه قلمرو قلمزن قلممو قلمچی قلنبه قلندر قلیان قمصری قمصور قمقمه قمهزن قمهکش قناتی قنادی قناره قناری قناسی قناعت قنبری قندآب قنداب قنداغ قنداق قندان قندزا قندچی قندیل قنسول قنطار قنوات قهاری قهرود قهریه قهقرا قهقهه قوادی قواره قواعد قوالب قوامی قورمه قوشچی قولنج قومیت قونیه قوچان قویتر قویدل قیاسا قیاسی قیافه قیامت قیامه قیامی قیراط قیصری قیطان قیقاج قیمتی لااقل لاتعد لاتین لاجرم لاحول لاخون لادگر لادیک لارسن لارمر لارنس لاروب لاروس لاروش لازمه لازیو لاسند لاسید لاسیم لاغرو لاغری لافزن لاقید لامتی لامرد لامسب لامسه لامصب لامعی لامپا لاندا لاهوت لاهور لاوان لاورف لاویه لاچین لایحه لایقی لاینز لایوس لایچه لاییک لباده لباسش لباسی لبافی لبالب لبخند لبدوز لبریز لبسوز لبنان لبیبی لتونی لتیان لجاجت لجباز لجوجی لحظات لختگی لدادن لذایذ لذتجو لذیذی لرزان لرزند لرزید لرزیم لرهای لزوما لسانی لسینگ لشکرک لشکری لشگرک لشگری لطافت لطایف لطمات لطیفه لطیفی لعبتک لعنتی لغایت لغزان لغزند لغزید لغزیم لفاظی لفافه لقلقه لقمان لقمهی لقیدن لمتری لمحات لمعات لمپنی لمیدم لمیدن لمیده لمیدی لنبان لنجان لندنز لندوغ لنگان لنگری لنگند لنگید لنگیم لنینگ لهاسا لهشده لهیدن لهیده لوادا لوارش لواری لوازم لواشک لواطه لوایح لوایی لوبرز لوبیا لوتوس لودگی لوران لورتا لورنس لورکا لوریس لوزان لوستر لوسیو لوشان لولند لولچه لولید لولیم لومان لوندی لوچهی لوچیو لوکاس لوکاچ لوکسی لوییز لوییس لپتاپ لپتین لچماق لژیون لکاته لکزده لکنته لکپور لگنچه لگوری لیاقت لیالی لیامت لیتیم لیدیه لیسند لیسید لیسیم لیلاز لیمون لیندا لیوان لیونه لیوگی لیپید لیچار لیکود لیکور لییمی مابعد مابقی مابین ماتحت ماترک ماتیز ماتیو ماتیک ماجدی ماجرا ماجوج ماجور ماجول ماحصل ماحضر ماخوذ مادام مادرش مادرم مادری مادسن مادون مادگی مادیت ماذون مارال ماران مارتا مارتن مارسل مارسی مارله مارند مارپل مارکز مارکس مارکو مارگو ماریا ماریه ماریو مازاد مازنی ماسال ماساژ ماسند ماسوا ماسون ماسید ماسیم ماشین مافات مافوق مافیا ماقبل مالجو مالخر مالرو مالزی مالند مالوف مالکی مالید مالیم مالیه مامان ماموت مامور ماموم مامون مانتو ماندم ماندن مانده ماندی مانرا مانعی مانند مانور مانوس مانوی مانکن مانیا مانید مانیل مانیم ماهان ماهرخ ماهرو ماهری ماهها ماهوت ماهور ماهوش ماهون ماهوی ماهچه ماهگی ماهیت ماورا ماوقع ماچگی ماژور ماژول ماژیک ماکان ماکرو ماکول ماگات ماگما ماگنت مایده مایرز مایست مایلی مایوس مایکل مباحث مبادا مبادی مبارز مبارک مباشر مبالغ مبانی مباید مبتدا مبتدی مبتذل مبتلا مبتنی مبتکر مبخشا مبدعی مبدیی مبذری مبذول مبرات مبراز مبران مبرتی مبرهن مبریز مبسوط مبشری مبصری مبعلی مبعوث مبلغی مبنای مبهوت مبینا متاثر متاخر متاسف متالم متاله متامل متانت متاهل متاکد متبحر متبرک متبسم متبوع متجدد متجزا متجلی متحجر متحدا متحده متحرک متحصن متحقق متحمل متحول متحیر متخذه متخصص متخطی متخلص متخلف متدون متدین متذکر متراش متراو متراژ مترتب مترجم مترسک مترصد مترقب مترقی متروک متریک متزوج متشبس متشتت متشخص متشرع متشنج متشکر متشکل متصدی متصرف متصلب متصله متصور متضاد متضرر متضمن متعال متعبد متعجب متعدد متعدی متعرض متعصب متعفن متعقب متعلق متعلل متعلم متعهد متعین متغلب متغیر متفرع متفرق متفقا متفقی متفنن متفکر متقال متقبل متقدس متقدم متقسم متقلب متقنی متقین متلبس متلون متلکم متمتع متمدن متمرد متمرگ متمسک متملق متمنی متمول متمکن متنبه متنبی متنجس متنعم متنفذ متنفر متنوع متنیت متهتک متهور متهیج متوان متوجه متوحش متورق متورم متوسط متوسل متوطن متوفا متوفی متوقع متوقف متولد متولی متونی متوهم متوکل متپان متکان متکبر متکثر متکدی متکرر متکفل متکلف متکلم متیقن متینی متیوز مثابه مثالی مثانه مثبتی مثقال مثنوی مجاتش مجاری مجازا مجالس مجالی مجامع مجانا مجانب مجانی مجاهد مجاور مجبور مجتبی مجتمع مجتهد مجددا مجذوب مجذور مجرای مجرده مجردی مجرمی مجروح مجرور مجریه مجسطی مجسمه مجعول مجلات مجلسی مجمره مجمری مجموع مجنون مجهان مجهور مجهول مجوسی مجیدی مجیری محابا محاجه محارب محارم محاسب محاسن محافظ محافل محامد محاکم محبتی محبوب محبوس محبین محتاج محتاط محترم محتسب محتشم محتضر محتلم محتمل محتوا محتوم محتوی محتکر محجبه محجوب محجور محدثه محدود محذور محذوف محراب محرری محرمه محرمی محروق محروم محرکه محرکی محزون محسنه محسنی محسوب محسوس محشور محصصی محصلی محصنه محصور محصول محظور محظوظ محفظه محفوظ محققا محققی محلات محلول محمدی محمره محملی محمود محمول محنتی محوره محوری محوطه محوله محوکن محکمه محکمی محکوم محیطی محیلی مخارج مخازن مخاصم مخاطب مخالف مخبری مختار مخترع مختصر مختصه مختلط مختلف مختوم مخدره مخدوش مخدوم مخراش مخرام مخروش مخروط مخزنی مخصوص مخلفه مخلوط مخلوع مخلوق مخمان مخمصه مخملک مخملی مخمور مخواب مخوان مخواه مخیله مداحی مداخل مدادک مدارا مدارج مدارس مدارک مدافع مداقه مداوا مداوم مدایح مداین مدبری مدتها مددجو مددگر مدران مدرخش مدرسه مدرسی مدریک مدفوع مدفون مدلول مدنظر مدنیت مدهشی مدهوش مدوان مدونا مدگرا مدیحه مدیره مدیری مدیسن مدینه مدیوم مدیون مذاهب مذبذب مذبوح مذبور مذموم مذهبی مذکور مراتب مراتع مراجع مراحل مراحم مرادف مرادی مرارت مراسم مراغه مراغی مراقب مرامی مراکز مراکش مرایا مربوط مرتاض مرتبا مرتبت مرتبط مرتبه مرتبی مرتجع مرتدی مرتضی مرتعش مرتفع مرتهن مرتکب مرثیه مرجان مرجعی مرجوع مرحبا مرحله مرحمت مرحوم مرخصی مرداب مرداد مردار مرداس مردان مردمک مردمی مردند مردها مردوخ مردود مردکه مردگی مردیت مردید مردیم مرسان مرسدس مرسلی مرسول مرسوم مرشدم مرشدی مرصاد مرضات مرضیه مرطوب مرعشی مرعوب مرغاب مرغان مرغزی مرغوا مرغوب مرغیه مرفوع مرفین مرقدی مرقوم مرمان مرمتی مرمره مرمری مرموز مرندی مرهان مرهمی مرهون مروان مروتی مروجی مروزی مرکزی مرکوب مرگزا مریخی مریدی مریضم مریضه مریضی مریلا مریمه مریمی مریوس مزاحم مزاحی مزارع مزایا مزبور مزخرف مزدوج مزدور مزدکی مزرعه مزروع مزمزه مزمور مزوری مزینی مساجد مساحت مساحی مساعد مساعی مسافت مسافر مسالت مساله مساوی مساکن مسایل مسبوق مستان مستبد مستتر مستحب مستحق مستدل مسترد مسترق مستعد مستغل مستقر مستقل مستمر مستمع مستند مستور مستیز مسجدی مسحور مسخره مسدود مسرات مسران مسرتی مسرفی مسرور مسروق مسطور مسعود مسلسل مسلما مسلمی مسلوب مسلول مسلکی مسماح مسمار مسموع مسموم مسنجر مسندی مسهلی مسواک مسوول مسپوز مسکار مسکری مسکنت مسکنی مسکوت مسکوک مسکین مسگال مسگری مسیبی مسیحا مسیحی مسیره مسیلت مسیله مسینا مسیول مشابه مشاطه مشاعر مشاعی مشاغل مشاور مشایخ مشایع مشایی مشبهه مشتاب مشتاق مشتبه مشترک مشتری مشتزن مشتعل مشتقه مشتلق مشتمل مشحون مشخصا مشخصه مشدده مشربه مشرفی مشرقی مشروب مشروح مشروط مشروع مشرکی مشعری مشعشع مشعلی مشعوف مشغله مشغول مشفقی مشمار مشمول مشمیز مشناس مشنگی مشهدی مشهود مشهور مشورت مشکات مشکاف مشکان مشکبو مشکسا مشکور مشکوک مشکین مشیتی مشیری مصاحب مصادر مصادف مصارف مصافت مصالح مصایب مصباح مصداق مصدرش مصدری مصدقی مصدوم مصراع مصرند مصروف مصطبه مصطفی مصطلح مصعبی مصلحت مصلحی مصلوب مصممی مصنوع مصوبه مصوری مصیبت مضارع مضاعف مضافا مضایق مضبوط مضحکه مضحکی مضراب مضرات مضروب مضطرب مضمحل مضمضه مضموم مضمون مضیقه مطابق مطالب مطالع مطامع مطبوع مطران مطربی مطرقه مطروح مطرود مطلبم مطلبی مطلقا مطلقه مطلقی مطلوب مطمین مطنطن مطهره مطهری مطیعی مظالم مظاهر مظروف مظطرب مظفری مظلمت مظلمه مظلوف مظلوم مظنون مظهری معابد معابر معادل معادن معارج معارض معارف معاشر معاصر معاصی معافی معالج معالم معامل معاند معانی معاهد معاون معایب معبدی معبود معتاد معتبر معتدل معترض معترف معتصم معتضد معتقد معتمد معتکف معجزه معجون معدلت معدنی معدهی معدود معدوم معذبی معذرت معذلک معذور معراج معرفت معرفه معرفی معروض معروف معرکه معززی معزوز معزول معشوق معصوم معصیت معطری معطلی معطوف معظمه معظمی معقول معلقه معلمی معلول معلوم معمار معمور معمول معنعن معنوی معهذا معهود معوقه معکوس معیار معیری معیشت معینی معیوب مغاره مغازه مغانه مغاکی مغایر مغبون مغتنم مغران مغربی مغرضی مغرور مغروق مغشوش مغضوب مغفرت مغفور مغفول مغلطه مغلوب مغلوط مغموم مغنیه مغولی مفاخر مفازه مفاسد مفاصل مفتاح مفتخر مفتری مفتشی مفتضح مفتوح مفتول مفتون مفتکی مفرده مفردی مفرسا مفرست مفرما مفروش مفروض مفریب مفسده مفسری مفشار مفشان مفصلا مفصله مفصلی مفعول مفقود مفلسف مفلسی مفلوج مفلوک مفهوم مفیدی مقابر مقابل مقاتل مقارن مقاصد مقاطع مقاله مقامر مقامی مقاوم مقایس مقبره مقبلی مقبوح مقبول مقتبس مقتدا مقتدر مقتدی مقتسط مقتصد مقتضا مقتضی مقتول مقداد مقدار مقدسه مقدسی مقدمه مقدمی مقدور مقراض مقربی مقرره مقرری مقرنس مقروض مقرون مقسوم مقصدی مقصرم مقصود مقصور مقطعه مقطوع مقلدی مقلوب مقنعه مقننه مقهور مقوله مقیاس مقیدی مقیمی ملاحت ملاحی ملاده ملارد ملازم ملافه ملاقه ملالت ملامت ملاها ملایر ملایم ملایک ملایی ملبوس ملتحم ملتزم ملتفت ملتمس ملتهب ملحدی ملحفه ملحوظ ملخوف ملزوم ملطفه ملعبه ملعون ملغمه ملفوظ ملفوف ملموس ملنگی ملوان ملودی ملولی ملوکی ملویل ملکان ملکوت ملکول ملکیت ملیجک ملیحه ملیحی ملیسا ملیله ملینا ملیون ملیکا ممالک ممتاز ممتحن ممتنع ممدوح ممدود ممزوج ممسنی ممفیس ممقان مملوک مملکت ممنوع ممنون ممهور ممکنه ممیزه ممیزی منابع منادا منادی مناره مناری منازع منازل مناسب مناسک مناصب مناطق مناظر مناعت مناعی منافذ منافع منافق منافی مناقب منامه مناهل منبری منبسط منبعث منبعد منبوع منتجب منتجه منتخب منتزع منتسب منتشر منتصب منتطر منتظر منتظم منتفع منتفی منتقد منتقل منتقم منتها منتهی منتکش منثور منجدو منجلی منجمد منجمی منجوق منجیل منحرف منحصر منحله منحنی منحوس مندان مندرج مندرس مندنی مندوب مندیل منزجر منزلت منزلش منزله منزلی منزوی منسجم منسوب منسوج منسوخ منشآت منشان منشعب منشور منشین منصبی منصرف منصفه منصفی منصوب منصور منضبط منطبق منطقا منطقه منطقی منظره منظری منظما منظمی منظور منظوم منعزل منعطف منعقد منعکس منفجر منفرج منفرد منفرش منفسخ منفصل منفعت منفعل منفور منفوش منقاد منقار منقبت منقبض منقرض منقسم منقصم منقضی منقطع منقلب منقوش منقول منهاج منهتن منهدم منهنب منواز منوال منورد منوری منویس منویی منکرش منکری منکسر منکوب منکوه منکیو منگار منگلی منگنز منگنه منگول منیره منیرو منیسک منیعی منیژه مهابت مهاجر مهاجم مهارت مهارش مهبدی مهتاب مهتاج مهتدی مهتری مهجور مهدخت مهدور مهدوی مهدیس مهدیه مهراب مهراد مهراز مهراس مهرام مهران مهرجو مهریز مهریه مهسان مهستی مهشاد مهشید مهلقا مهلکه مهمات مهمان مهمیز مهناز مهنام مهندس مهنوش مهوشی مهکام مهیار مهیای مهیبی مهیمن مهینی مواجب مواجه مواجی موارد موازن موازی مواضع مواظب مواعد مواعظ موافق مواقع مواقف موالد موالی موانع مواهب موبدی موتلف موتمن موتور موثره موثقی موجدی موجری موجزن موجزی موجهه موجود موحدی موخره مودار مودتی مودنا موذنی مورال موران مورخه مورخی موردی مورفی مورمن موروث مورچه مورگن موریر موریس موزان موزدا موزون موزیک موساد موسرخ موسسه موسسی موسوم موسوی موسیر موسیو موصوف موصول موضوع موطنی موعدی موعظت موعظه موعود موغار موقتا موقتی موقعی موقوف مولرو مولفه مولود مولوی مولیر مومنی مومگر مومیا مونتر مونتز مونتس موندو مونسی مونگل مونیخ موهای موهبت موهبه موهوم موهون موونت موونه موپوش موچول موچین موکدا موکلی موکول مویدی مویرا مویرگ مویند موینه مویید موییم مویین مپالا مپذیر مپران مپرست مپرور مپسند مپلاس مپناه مپژمر مپژوه مپیرا مپیما مچاله مچبند مچدست مچران مچروک مچشان مچلان مچپان مچکان مژگان مکاتب مکارم مکاره مکاری مکاسب مکانی مکبری مکتبی مکتشف مکتوب مکتوم مکداف مکران مکررا مکرما مکرمت مکرمه مکروه مکزیک مکسین مکشان مکشوف مکشگر مکفوف مکنتی مکنده مکنزی مکنسه مکنون مککین مکیدم مکیدن مکیده مکیدی مکینه مگداز مگذار مگراز مگران مگریز مگزار مگزین مگسار مگستر مگسکش مگمار مگنوم مگوار میآخت میآمد میآید میآیم میآیی میارا میاسا میالا میامی میانه میاور میاکن میبدی میبرد میبرم میبری میبست میبود میترا میتند میتنم میتنی میتوز میتپد میتپم میتپی میثاق میثمی میجست میجلی میجهد میجهم میجهی میخرد میخرم میخری میخزد میخزم میخزی میخفت میخلد میخلم میخلی میخمد میخمم میخمی میخوذ میخچه میخکش میداد میدان میدرد میدرم میدری میدمد میدمم میدمی میدهد میدهم میدهی میدود میدوم میدوی میدکو میدید میراب میراث میراژ میرزا میرست میرسد میرسم میرسی میرشت میرفت میرمد میرمم میرمی میرند میرهد میرهم میرهی میرود میروم میروی میرید میریم میزاد میزان میزدم میزده میزدی میزند میزنم میزنی میزچه میزید میزیم میزیی میسان میسرد میسرم میسری میسزد میسزم میسزی میسفت میسود میسور میسون میشدم میشده میشدی میشست میشلد میشلم میشلی میشود میشوم میشوی میشکا میعاد میعان میغرد میغرم میغری میفزا میفسر میفکن میفگن میقات میقان میلاد میلان میلزن میلمد میلمم میلمی میلوف میلچه میمرد میمنت میمند میمنه میمور میمون میمکد میمکم میمکی میمیک میناب میندا مینسک مینهد مینهم مینهی مینوی میهشت میهلد میهلم میهلی میهنی میوزد میوزم میوزی میپخت میپرد میپرم میپری میپزد میپزم میپزی میپکد میپکم میپکی میچرد میچرم میچری میچسد میچسم میچسی میچشد میچشم میچشی میچپد میچپم میچپی میچکد میچکم میچکی میچید میکده میکرب میکرد میکرو میکسر میکشت میکشد میکشم میکشی میکند میکنم میکنی میگرن میگشت میگفت میگون ناامن نااهل ناباب نابجا نابغه نابلد نابلس نابود ناتنی ناتور ناجنس ناجور ناحقی ناحیه ناخدا ناخلف ناخنم ناخنک ناخوش نادار نادال نادان نادره نادری نادمی نادیا نارسا نارسی نارمک نارنج ناروا نارون نازان نازلو نازند نازکی نازید نازیم نازیک ناساز ناسره ناسزا ناسوت ناسور ناسیه ناشاد ناشتا ناشده ناشری ناشکر ناصاف ناصبی ناصحی ناصری ناصیه ناطقه ناطقی ناطور ناظره ناظری ناظمی ناغاف نافبر نافرخ نافرم نافعی نافلز نافله نافهم نافچه ناقصی ناقلا ناقلی ناقوس نالند نالید نالیم نامجو نامرد نامزد نامند نامور ناموس نامچه نامید نامیم نانجس نانسی نانوا ناهار ناهید ناوبر ناورد ناوچه ناپاک ناپلی ناچار ناچیز ناکار ناکام ناکسی ناکوک ناگاه ناگذر نایاب نایبی نایست نایچه نایژه نایژک نایین نباخت نبارد نبارم نباری نبازد نبازم نبازی نباشد نباشم نباشی نبافت نبافد نبافم نبافی نبالد نبالم نبالی نباید نبخشا نبخشد نبخشم نبخشی نبراز نبران نبردم نبردن نبرده نبردی نبرشت نبرند نبرید نبریز نبریم نبستم نبستن نبسته نبستی نبشته نبلعد نبلعم نبلعی نبندد نبندم نبندی نبودم نبودن نبوده نبودی نبوسد نبوسم نبوسی نبوغی نبوید نبویم نبویی نبیخت نبیره نبیزد نبیزم نبیزی نبیلی نبیند نبینم نبینی نتابد نتابم نتابی نتاخت نتازد نتازم نتازی نتافت نتانی نتایج نتراش نتراو نترسد نترسم نترسی نترشد نترشم نترشی نترکد نترکم نترکی نتفتد نتفتم نتفتی نتمرگ نتنند نتنید نتنیم نتوان نتوفد نتوفم نتوفی نتپان نتپند نتپید نتپیم نتکان نتیجه نثارش نثاری نجابت نجاتی نجاری نجاست نجاشی نجران نجستم نجستن نجسته نجستی نجمیه نجنبد نجنبم نجنبی نجنگد نجنگم نجنگی نجهان نجهند نجهید نجهیم نجوشد نجوشم نجوشی نجومی نجوید نجویم نجویی نجیبه نجیبی نحوست نحیفی نخارد نخارم نخاری نخاست نخاله نخاید نخایم نخایی نخبگی نختاب نخجیر نخراش نخرام نخرند نخروش نخرید نخریس نخریم نخزند نخزید نخزیم نخسبد نخسبم نخسبی نخشبی نخشکد نخشکم نخشکی نخفتم نخفتن نخفته نخفتی نخلند نخلید نخلیم نخمان نخمند نخمید نخمیم نخندد نخندم نخندی نخنما نخواب نخوان نخواه نخورد نخورم نخوری نخیزد نخیزم نخیزی ندادم ندادن نداده ندادی ندارد ندارش ندارم ندارن نداری نداشت ندامت نداند ندانم ندانن ندانی نداگر ندایی ندران ندرتا ندرخش ندرند ندرود ندروم ندروی ندرید ندریم ندزدد ندزدم ندزدی ندمند ندمید ندمیم ندهند ندهید ندهیم ندوان ندوخت ندوزد ندوزم ندوزی ندوشد ندوشم ندوشن ندوشی ندوند ندوید ندویم ندیدم ندیدن ندیده ندیدی ندیمه ندیمی نذیری نراقی نراند نرانم نرانی نربود نرخشد نرخشم نرخشی نرسان نرستم نرستن نرسته نرستی نرسند نرسید نرسیم نرشتم نرشتن نرشته نرشتی نرفتم نرفتن نرفته نرفتی نرقصد نرقصم نرقصی نرمال نرمان نرمتن نرمخو نرمدل نرمند نرمید نرمیم نرنجد نرنجم نرنجی نرندد نرندم نرندی نرهان نرهخر نرهند نرهید نرهیم نروبد نروبم نروبی نرودا نروفت نروند نروژی نروید نرویم نرویی نریان نریخت نریدم نریدن نریده نریدی نریزد نریزم نریزی نریسد نریسم نریسی نریند نرینم نرینه نرینی نزادم نزادن نزاده نزادی نزارد نزارم نزاری نزاکت نزاید نزایم نزایی نزدند نزدود نزدید نزدیم نزدیک نزنند نزنید نزنیم نزیست نزیند نزیید نزییم نسابد نسابم نسابی نساجی نساخت نسازد نسازم نسازی نساید نسایم نسایی نسبتا نسبیت نستاد نستان نسترد نسترم نسترن نستری نستود نستور نستوه نستیز نسران نسرشت نسرشد نسرشم نسرشی نسرند نسرود نسرید نسریم نسرین نسزند نسزید نسزیم نسطور نسفتم نسفتن نسفته نسفتی نسلکش نسناس نسنبد نسنبم نسنبی نسنجد نسنجم نسنجی نسوان نسوخت نسودم نسودن نسوده نسودی نسوزد نسوزم نسوزی نسپار نسپرد نسپرم نسپری نسپوز نسگال نسیان نسیمک نسیمی نشادر نشاشد نشاشم نشاشی نشاطی نشاند نشانم نشانه نشانی نشاید نشبیل نشتاب نشدند نشدنی نشدید نشدیم نشریه نشستم نشستن نشسته نشستی نشلند نشلید نشلیم نشمار نشمرد نشمرم نشمری نشمین نشناس نشنال نشنود نشنوم نشنوی نشنید نشوتد نشوتم نشوتی نشورد نشورم نشوری نشوند نشوید نشویم نشویی نشکاف نشکست نشکفت نشکفد نشکفم نشکفی نشکند نشکنم نشکنی نشیمن نشیند نشینم نشینی نشیگی نصابی نصاری نصایح نصران نصرتی نصوری نصیحت نصیری نطلبد نطلبم نطلبی نطنزی نظارت نظاره نظافت نظامی نظایر نظرات نظریه نظمیه نظیری نظیفی نعشکش نعلچه نعلگر نعلین نعمات نعمان نعمتی نعناع نعیمی نغران نغرند نغرید نغریم نغزگو نغلتد نغلتم نغلتی نغمات نفاست نفتچی نفتکش نفحات نفرات نفربر نفرسا نفرست نفرما نفروش نفریب نفرین نفشار نفشان نفشرد نفعات نفلسف نفلگی نفهمد نفهمم نفهمی نفیسه نفیسی نقابی نقادی نقاره نقاشی نقاله نقالی نقاهت نقاپد نقاپم نقاپی نقایص نقایض نقبزن نقبول نقدگر نقشگر نقصان نقلیه نقنقو نقیبی نقیصه نقیضه نلاسد نلاسم نلاسی نلرزد نلرزم نلرزی نلسون نلغزد نلغزم نلغزی نلمند نلمید نلمیم نلنگد نلنگم نلنگی نلولد نلولم نلولی نلیسد نلیسم نلیسی نمابر نمازی نماسد نماسم نماسی نمالد نمالم نمالی نماند نمانم نمانی نماید نمایش نمایم نماین نمایه نمایی نمدار نمدان نمدگر نمدین نمرات نمردم نمردن نمرده نمردی نمرهی نمرود نمناک نمودم نمودن نموده نمودی نموری نمونه نموید نمویم نمویی نمکند نمکنش نمکید نمکیم نمکین نمیرد نمیرم نمیری نمیزد نمیشد ننازد ننازم ننازی ننالد ننالم ننالی ننامد ننامم ننامی ننشان ننشست ننشین ننمود ننهاد ننهفت ننهنب ننهند ننهید ننهیم ننواز ننورد ننوشت ننوشد ننوشم ننوشی ننویس ننکوه ننگار ننگرد ننگرم ننگری ننگین نهاجا نهادم نهادن نهاده نهادی نهارا نهاره نهاری نهالی نهانی نهایت نهایی نهراس نهرود نهشتم نهشتن نهشته نهشتی نهضتی نهفتم نهفتن نهفته نهفتی نهلند نهلید نهلیم نهمین نهنبد نهنبم نهنبی نهنده نهنگی نوآور نوابغ نوابی نواحی نواخت نوادا نوادر نواده نوازد نوازش نوازم نوازی نوافل نواقص نواله نواگر نوایی نوبتی نوبخت نوبری نوجان نوخیز نودال نودهی نوذری نوردد نوردم نوردی نورزد نورزم نورزی نورمن نوروز نورون نوریس نوریه نوزاد نوزان نوزده نوزند نوزید نوزیم نوساز نوسان نوشتم نوشتن نوشته نوشتی نوشند نوشهر نوشید نوشیم نوشین نوغاب نوغان نوقان نوقلم نولان نومید نوپان نوچاه نوچگی نوچین نوکرت نوکری نوکمپ نوکیا نوکیش نوگرا نویدی نویرا نویسد نویسم نویسه نویسی نپاشد نپاشم نپاشی نپالا نپاید نپایم نپایی نپتون نپختم نپختن نپخته نپختی نپذیر نپران نپرست نپرسد نپرسم نپرسی نپرند نپرور نپرید نپریم نپزند نپزید نپزیم نپسند نپلاس نپلکد نپلکم نپلکی نپناه نپوسد نپوسم نپوسی نپوشد نپوشم نپوشی نپوید نپویم نپویی نپژمر نپژوه نپکند نپکید نپکیم نپیرا نپیما نپیچد نپیچم نپیچی نچاپد نچاپم نچاپی نچاید نچایف نچایم نچایی نچرال نچران نچربد نچربم نچربی نچرخد نچرخم نچرخی نچرند نچروک نچرید نچریم نچسبد نچسبم نچسبی نچسند نچسید نچسیم نچشان نچشند نچشید نچشیم نچلان نچپان نچپند نچپید نچپیم نچکان نچکند نچکید نچکیم نچیدم نچیدن نچیده نچیدی نچیند نچینم نچینی نژاده نژادی نژندی نکارد نکارم نکاری نکاست نکاشت نکاهد نکاهم نکاهی نکاود نکاوم نکاوی نکایی نکتار نکردم نکردن نکرده نکردی نکرگی نکشان نکشتم نکشتن نکشته نکشتی نکشند نکشید نکشیم نکندم نکندن نکنده نکندی نکنند نکنید نکنیم نکوبد نکوبم نکوبی نکوخو نکورو نکوشد نکوشم نکوشی نکوفت نکوفر نکوهد نکوهش نکوهم نکوهی نکوچد نکوچم نکوچی نکویی نکیسا نگارد نگارش نگارم نگاره نگاری نگاشت نگاهم نگاهی نگاید نگایم نگایی نگداز نگذار نگذاش نگذرد نگذرم نگذری نگذشت نگراز نگران نگردد نگردم نگردی نگرفت نگرند نگرود نگروم نگروی نگرید نگریز نگریم نگریی نگزار نگزید نگزین نگسار نگستر نگسست نگسلد نگسلم نگسلی نگشاد نگشتم نگشتن نگشته نگشتی نگشود نگفتم نگفتن نگفته نگفتی نگمار نگنجد نگنجم نگنجی نگندد نگندم نگندی نگوار نگوزد نگوزم نگوزی نگوید نگویم نگویی نگیرد نگیرم نگیری نگینی نیابت نیابد نیابم نیابی نیاخت نیارا نیازد نیازف نیازم نیازی نیاسا نیاسر نیافت نیالا نیامد نیامی نیاور نیاکن نیاید نیایش نیایم نیایی نیترو نیرزد نیرزم نیرزی نیرنگ نیریز نیزار نیسار نیسان نیستم نیستی نیسون نیشتر نیشکر نیفتد نیفتم نیفتی نیفزا نیفسر نیفکن نیفگن نیلبک نیلفر نیمرخ نیمرو نیمست نیممن نیمپز نیمچه نیمکت نینجا نیندا نینوا نیوتن نیوشا نیومن نیوند نیونم نیونی نیپیچ نیکتا نیکخو نیکدل نیکرو نیکسن نیکلا نیکوس نیکول نیکون نیکپی هابیل هاتفی هاجری هاجسن هادسن هاردن هاردی هارلم هارلن هارلی هاروت هارون هارپر هاشمی هاشور هاضمه هافبک هافمن هالتر هامان هاملت هامون هانتر هانری هانسن هانوی هانیه هاویه هاکان هاکین هاگزا هاگچه هایدا هایدر هایده هاینر هاینز هاینس هاینو هایکو هتاکی هتراش هجاگو هجایی هجدهم هجران هجرتی هجوگو هجویر هجویه هجیری هدایا هدایت هدبند هدفون هذیان هراتی هرازی هراسد هراسم هراسی هرالد هربار هربرت هرجهت هرجور هرحال هردوت هرروز هرزگی هرسال هرسین هرطور هرعدد هرقدر هرمان هرماه هرمزد هرمزی هرنجی هرندی هرودت هرچند هرچیز هرکجا هرکسی هرکول هرگاه هرگلی هریسه هریسی هزارش هزارم هزاره هزاری هزلگو هزیمت هزینه هستند هستید هستیم هشامی هشتاد هشتصد هشتند هشتپا هشتید هشتیم هشدار هشیار هفتاد هفتخط هفتصد هفتگی هفدهم هلالک هلالی هلاهل هلاکت هلاکو هلمند هلموت هلندی هلهله هلویی هلیله هلیوم همآوا همآیی همارز هماره همالی همامی همانا همانج هماوا همایش همایی همبری همبند همجنس همجهت همجوش همخون همدان همداو همدرد همدرس همدست همدلی همدمی همدهی همدوش همذات همراز همراه همرای همرزم همرفت همرنگ همروی همزاد همزدن همساز همسال همسان همسخن همسرا همسری همسطح همسفر همسنگ همشان همشکل همصدا همطیف همعرض همعصر همعهد همغذا همفاز همفری همفکر همقدم همقسم همقفس همقلم هملخت هممحل هممرز همنام همنسل همنظر همنفس همنوا همنوع همهجا همهشب همهمه همهکس هموار هموزن هموطن همپوش همچشم همچون همکار همکرد همکفو همکیش همگام همگان همگرا همگون همیان همیزد همیشد همیشه همینه هنجار هندسه هندسی هندوس هنرجو هنرور هنریک هنوهن هنگام هنگفت هنینگ هواده هوارد هوازن هوازی هواکش هوایی هوبره هوتنی هوحقه هوراس هوسرل هوشبر هوشنگ هولمز هولکی هولیه هومنی هوندا هویدا هویزه هپتال هپروت هژبری هژیری هکتار هکتور هیاهو هیبتی هیتلر هیثمی هیجان هیدرو هیدست هیربد هیلمن هیمنه هیهات هیولا هیچکس هیچیک هیکلی هیگسن هییتی وابنه وابکن واثقی واجبه واجبی واحده واحدی وادار وارثی وارده واردی وارسی وارنر وارون واریز واریس وازده وازنش واسطه واسطی واسعه واصله واضحی واعظی وافور واقعا واقعن واقعه واقعی واقفی والاس والتر والده والدی والری والزر والله والنی والهه وامده وامنه وامکن واننه وانهد وانهم وانهی وانکن وانگه وانیل وانیم وانین واهبی واهمه واپسی واکرد واکسن واکسی واکشی واکمن واکند واکنش واکنم واکنی واگرا واگیر واینر وبایی وبستر وبلاگ وبکار وبگاه وبگرد وثوقی وثیقه وثیقی وجاهت وجدان وجنات وجودی وجوهی وجیهه وجیهی وحدتی وحیده وحیدی وخامت وختگی وخیلی ودادی وداعی ودکای ودیعت ودیعه ورآمد ورآید ورآیم ورآیی وراثت وراجی وربرو وربیا وردست وردنه وررفت وررود ورروم ورروی ورزند ورزید ورزیم ورسای ورمرو ورمیا ورنرو ورنیا ورنیه وروجک ورودی وروره ورونا ورپشت وزارت وزانت وزاند وزانم وزانی وزشگر وزنده وزیدم وزیدن وزیده وزیدی وزیری وزینی وساطت وساوس وسایط وسایل وسترن وسواس وسوسه وسیله وصالی وصایا وصایت وصولی وضعیت وضویی وطنان وطواط وظایف وظیفه وعدهی وعیدی وغفلت وغیره وفاقی وفالو وفایی وقاحت وقایا وقایت وقایع وقتیک وقوعی وقوفی وقیحی ولاجل ولادت ولایت ولایی ولتاژ ولخرج ولنجک ولوله ولگرد ولیدی ولیمه ولیکن ونداد ونسان ونگوگ وهابی وهمزا وویجر وژسیچ وکالت وکلای وکوجی وکیلی وکیوم وگاهی وگرنه ویارش ویالی ویبره ویدیو ویران ویراژ ویروس ویزور ویزیت ویستا ویسکی ویشکا ویلان ویلسن ویلچر ویلیز وینچی وینکو ویولن ویژگی ویکلی ویگلی وییون پابست پابلو پابند پابوس پاتوق پاتیل پاجوش پاخور پادار پاداش پادتن پادرد پادری پاراف پارتی پارجه پارسا پارسه پارسی پارما پارنج پارچه پارچی پارکت پارگی پاریز پاریس پاساژ پاستل پاسور پاسوز پاسیو پاشند پاشنه پاشید پاشیم پالاس پالان پالتو پالمر پالود پالیز پامال پامزد پامیر پاندا پانصد پانیذ پاپتی پاپهن پاپوش پاپیچ پاچگی پاکار پاکتر پاکتی پاکخو پاکدل پاکرو پاکوب پاککن پاگان پاگرد پاگشا پاگون پاگیر پایاب پایان پایند پایور پایول پایید پاییز پاییم پایین پتروف پتویی پتیرو پتیشن پختند پختنی پختگی پختید پختیم پخشکن پخمگی پدرام پدرزن پدرسگ پدرکش پدیده پذیرا پذیرد پذیرش پذیرم پذیره پذیری پرآبی پرآفت پرارج پراشک پراند پرانش پرانم پرانی پراپر پراید پرایس پرباد پربار پربحث پربرف پربرگ پربلا پربها پربچه پرتاب پرتال پرتخم پرتره پرتست پرتنش پرتوی پرتپش پرتگو پرثمر پرجرم پرجفا پرجوش پرحجم پرحرف پرخار پرخاش پرخرج پرخطر پرخور پرخون پردار پرداز پردرد پردقت پردلی پردگی پردیس پرذوق پرراز پررمز پررنج پررنگ پرریش پرزخم پرزرق پرزور پرزیب پرسان پرستد پرستش پرستم پرستو پرستی پرسخن پرسند پرسنل پرسنگ پرسود پرسوز پرسید پرسیم پرسیه پرشاخ پرشال پرشدت پرشده پرشرر پرشرم پرشهد پرشور پرشیا پرشیب پرشیر پرضرر پرعطر پرعقل پرعمق پرفنی پرفیس پرفیض پرلاف پرلمن پرمغز پرمهر پرمون پرنده پرندک پرندی پرنسس پرنفس پرنقش پرنمک پرنور پرهام پرهنر پرهوس پرهون پرهیب پرهیز پروار پرواز پروان پروتز پروتن پروجا پرودی پرورد پرورش پرورق پرورم پروری پروزن پروست پروسه پرولع پروپا پروژه پرویز پروین پرویی پرپری پرپشت پرپشم پرپیچ پرچرب پرچمی پرچین پرکار پرکشش پرکنش پرکوه پرگار پرگاز پرگرد پرگهر پرگوی پریدر پریدم پریدن پریده پریدی پریرو پریسا پریشب پرینت پریود پریوش پریچه پزشکی پسامد پستال پستان پستچی پستگی پسدوز پسران پسرزا پسرفت پسروی پسرکش پسندد پسندم پسندی پسنگر پسورد پسوند پسیان پشتون پشمال پشمکی پشمین پشندی پشنگی پشهکش پفالو پفدار پفیدن پفیوز پلاتر پلاتو پلازا پلاسد پلاسم پلاسی پلانک پلاکت پلتیک پلدشت پلوتو پلوور پلوپز پلویی پلکان پلکند پلکید پلکیم پلیآف پلیدی پلیسه پلیسی پلیمر پلیور پمپاژ پمپیی پناهد پناهم پناهی پنجاب پنجاه پنجره پنجول پندار پندگو پنهان پنچری پنکیک پنگان پنیره پنیرو پنیرک پهلبد پهلوی پهنای پهپاد پوآرو پوآسن پوتین پوران پورتو پورشه پورنو پوریا پوسان پوستر پوسته پوستی پوسند پوسید پوسیم پوشال پوشاک پوشند پوشید پوشیم پولاد پولمن پولها پولکی پولیس پولیش پونیک پوپکی پویان پوینت پویند پویول پویید پوییم پژمان پژمرد پژمرم پژمری پژواک پژوهد پژوهش پژوهم پژوهی پکیدم پکیدن پکیده پکیدی پگاهی پیاده پیازه پیازک پیاله پیامد پیامک پیامی پیانو پیاپی پیاژه پیترز پیتزا پیخال پیرار پیرام پیران پیرزن پیرلو پیرهن پیروز پیروی پیرکس پیستی پیشاب پیشتر پیشرس پیشرو پیشها پیشوا پیشکش پیشکی پیشگو پیشین پیغام پیغمب پیلوت پیمان پیمبر پیمود پینتو پینکی پیوتر پیوست پیوند پیونگ پیچان پیچند پیچید پیچیم پیکار پیکان پیکره پیکسل پیگرد پیگیر چابکی چاخان چادرش چارسو چارقد چارلز چارلی چارهی چاروق چارپا چارکی چاشنی چاقوی چالاک چالهی چالوس چاهکن چاهکی چاوشی چاووش چاپار چاپزن چاپند چاپچی چاپگر چاپید چاپیم چاکرا چاکری چاینا چایند چایچی چایید چاییم چخماق چذابه چراغو چراغی چراند چرانم چرانی چراکه چرایی چربند چربید چربیم چرتکه چرخاب چرخان چرخشت چرخند چرخکی چرخگر چرخید چرخیم چرنده چرندی چروکد چروکم چروکی چرچیل چرکری چرکین چریدم چریدن چریده چریدی چزاره چسبان چسبند چسبید چسبیم چسخور چسیدم چسیدن چسیده چسیدی چشاند چشانم چشانی چشایی چششمم چشمان چشمها چشنده چشیدم چشیدن چشیده چشیدی چغاله چغندر چلاقش چلاقی چلاند چلانم چلانی چلتاج چلغوز چلفتی چلمنی چلنجر چلنگر چلوار چلچله چلیپا چلیکه چمانه چمدان چمران چمنزن چموشی چمیدن چناری چنانک چنانی چنبره چنبرک چندان چندتا چندصد چندلر چندمی چندین چنگال چنگیز چهارم چهبسا چهطور چهچهه چهکار چوببر چوبخط چوبین چونان چونکه چوپان چوگان چپاند چپانم چپانی چپاول چپدست چپچشم چپچین چپگرا چپگرد چپیدم چپیدن چپیده چپیدی چکامه چکاند چکانش چکانم چکانی چکاوه چکاوک چکنده چکپول چکیدم چکیدن چکیده چکیدی چگالی چگونه چگینی چیتگر چیدند چیدید چیدیم چیذری چیرگی چیزها چیزیم چیستا چیستم چیستی چینند چینید چینیم چیودا ژاپنی ژاژخا ژدانف ژرفنا ژرهاک ژنتیک ژندگی ژنرال ژنریک ژوستی ژولای ژولیا ژولیت ژولیو ژوکوف ژوییه ژگوری ژیلبر ژیگول کابلی کابوس کابوی کابین کاتبی کاربر کاربن کارتر کارتل کارتن کارجو کاردک کارزا کارسن کارلو کارند کارنو کارنگ کارها کارور کارول کارون کارکن کارگر کارید کاریز کاریم کاسبی کاستم کاستن کاسته کاستی کاسنی کاسکت کاسکو کاشان کاشتم کاشتن کاشته کاشتی کاشغر کاشفی کاشمر کاشکی کاظمی کافری کافور کافکا کالبد کالبر کالری کالون کالچو کالین کامجو کاملا کاملی کامنت کاموا کامپو کامیل کانال کاندر کانلی کانون کانکس کانیو کاهلی کاهند کاهنی کاهگل کاهید کاهیم کاواک کاوشی کاوند کاووس کاوید کاویم کاپشن کاپلو کاپوت کاکلش کایاک کایرا کایزر کبابی کباده کبالت کبریا کبریت کبوتر کبودی کبکبه کبیره کبیری کبیسه کتابت کتابه کتابی کتاره کتانه کتانی کتمان کتولی کتیبه کتیرا کتیکف کثافت کثرات کثرتی کثیری کثیفی کجاست کجاوه کجایت کجایی کجخلق کجروی کجفهم کجوری کدامش کدامی کدباز کدخدا کدورت کدکنی کدگشا کدیاب کدیور کدیین کذابی کذایی کرارا کراری کرامت کرامر کرانه کرانی کراهت کراچی کراکت کراکر کرایه کرباس کربلا کربین کرتیر کرتیس کرختی کردار کردان کردست کردلر کردند کردنی کردید کردیم کرزای کرستن کرشمه کرمان کرملو کرنای کرندی کرهای کرهخر کروات کروبی کروشه کروفر کرولا کروکی کرویت کرویف کرکره کرکوک کرگدن کریاس کریشه کریمه کریمی کریهی کریوس کریکت کزازی کسادی کسالت کسانی کسایی کستنی کسخلی کسروی کسشعر کسوتی کسکشی کشاله کشاند کشانم کشانی کشاکش کشباف کشتار کشتند کشتید کشتیم کشدار کشسان کشمکش کشمیر کشنده کشوری کشویی کشکول کشیدم کشیدن کشیده کشیدی کشیشی کفاره کفاشی کفالت کفایت کفایی کفبین کفتار کفزنی کفساز کفشکن کفشگر کفعمی کفپوش کفگیر کفیلی کلاته کلاتی کلارا کلاره کلارک کلاسه کلاشی کلاغک کلاغی کلافه کلاله کلامش کلامی کلاهت کلاهش کلاهک کلاوس کلاژن کلاکی کلثوم کلرات کلرید کلسیم کلفتر کلفتی کلمات کلمبو کلمنت کلمهی کلهاش کلهخر کلهری کلهشق کلهپا کلهپز کلودل کلوند کلوچه کلوین کلکته کلکها کلیات کلیدر کلیدی کلیسا کلیشه کلیله کلیمی کلینی کلیوی کلیگو کماسی کمالی کمانه کمانک کماهو کمبها کمبود کمحجم کمحرف کمخرج کمخطر کمخون کمدچه کمدین کمرمق کمرنگ کمرکش کمرگر کمزور کمصدا کمعقل کمعمق کمغذا کملطف کمندی کمنور کمهوش کموزن کمپرس کمپشت کمپوت کمپیر کمپین کمچرب کمکار کمکمک کمیاب کمیات کمیته کمیسر کمینه کنارد کناره کنارک کناری کنایه کنایی کنترل کنتور کندرو کندند کندید کندیم کنراد کنسرت کنسرو کنسول کنشگر کنعان کننده کنونی کنکاش کنکور کنگان کنگره کنگری کنیاک کنیزک کنیزی کنیسه کهتری کهرام کهربا کهریز کهنمو کهنوج کهنگی کهولت کواره کواری کوالا کواکب کوبان کوبلن کوبند کوبید کوبیم کوبین کوتاه کوتسن کوتهی کوثری کودتا کودنی کودکی کورال کوران کوربن کوردل کورسو کورشی کوروش کوزوو کوسان کوشان کوشتا کوشند کوشکی کوشید کوشیم کوفتم کوفتن کوفته کوفتی کولاژ کولاک کولیس کومار کومله کومیک کونکش کوهان کوهلر کوهچه کوهکن کوپال کوپله کوچند کوچکی کوچگر کوچید کوچیم کوکان کوکبه کوکبی کوکتل کوکتو کویته کویتی کویری کوینو کویین کپسول کپیدن کچلها کچویه کچویی کژبین کژتاب کژدمی کژراه کژروی ککومک کیارش کیاست کیاسر کیانا کیانگ کیانی کیایی کیدمن کیروش کیستی کیشان کیفزن کیفور کیفچه کیفیت کیلمن کیلکا کیمخت کیمیا کیهان کیوان کیوتو کیوسک گابری گابون گاراژ گارسن گارنر گاریش گازری گالاچ گالری گامبی گاموف گاندی گاوسی گاگول گایند گایید گاییم گبرلو گتسبی گتوند گجرات گجسته گداخت گداری گدازد گدازم گدازه گدازی گدایی گدوکی گذارد گذارم گذارن گذاری گذاشت گذران گذرند گذرید گذریم گذشتم گذشتن گذشته گذشتی گرازد گرازم گرازی گرامر گرامی گرانت گراند گرانش گرانم گرانی گراور گراید گرایش گرایم گرایی گربزی گرداب گردان گردند گردنش گردنم گردنه گردنی گردون گردید گردیم گرسنه گرفتم گرفتن گرفته گرفتی گرماب گرمبی گرمکن گروسی گرومپ گروند گروهه گروهک گروهی گروید گرویم گرویی گرکان گرگاب گرگان گرگری گرگور گرگین گریان گریخت گریزد گریزم گریزی گریست گریند گرینر گریوه گریید گرییم گزارد گزارش گزارم گزاره گزاری گزافه گزافی گزانی گزایی گزدان گزلیک گزمگی گزنده گزنفن گزکار گزیدم گزیدن گزیده گزیدی گزیرش گزیند گزینش گزینم گزینه گزینی گسارد گسارش گسارم گساری گستاخ گسترد گسترش گسترم گستره گستری گسستم گسستن گسسته گسستی گسلند گسلید گسلیم گسیخت گشادم گشادن گشاده گشادی گشاید گشایش گشایم گشایی گشتند گشتنی گشتید گشتیم گشنگی گشنیز گشودم گشودن گشوده گشودی گفتار گفتند گفتنی گفتگو گفتید گفتیم گلآرا گلآقا گلابی گلاره گلاسه گلایل گلایه گلباد گلباز گلباف گلبرگ گلبهی گلبول گلتاش گلتپه گلخنی گلدار گلدان گلدشت گلدمن گلدهی گلدون گلرنگ گلرود گلروی گلریز گلزار گلزنی گلسان گلشنی گلشهر گلشکر گلفام گلمال گلمژه گلنار گلناز گلنوش گلوجه گلوله گلوکز گلویش گلویم گلویی گلپری گلپوش گلچهر گلچین گلکار گلکسی گلکلم گلگشت گلگون گلگیر گلیمی گلینه گمارد گمارم گماری گماشت گمانه گمانی گمبلی گمراه گمشدن گمشده گمنام گنارو گناهک گناهی گناوه گنبدک گنبدی گنجشک گنجفه گنجند گنجها گنجور گنجوی گنجید گنجیم گنداب گندله گندمک گندند گندور گندگی گندید گندیم گهدان گهگاه گواتر گوارا گوارد گوارش گوارم گواری گواهی گواژه گوبلن گوتیک گوداب گودال گودرز گوراب گورخر گورزا گورنی گورکن گورکی گوریل گوزند گوزید گوزیم گوشبر گوشته گوشزد گولزن گونیا گوهرش گوهری گوکان گوگرد گوگوش گویان گویند گویچه گویید گوییم گچبری گچکار گیاهک گیتار گیدنز گیرند گیرید گیریم گیسوی گیلاس گیلان گیلکی گیورگ گیومه گیپور یابند یابوی یابید یابیم یاجوج یاحقی یاخته یاران یارای یاروی یارگر یازده یازند یازید یازیم یاسری یاسمن یاسمی یاسوج یاسین یاشار یاغچی یافتم یافتن یافته یافتی یاقوت یامچی یامیل یانال یانکر یانکی یاوری یاکوب یایسه یبوست یتیمک یتیمی یثربی یحتمل یحیوی یخبند یخدان یخزده یخساز یخسان یخشکن یخوار یخواس یخچال یددار یدککش یربوع یرقان یزدان یساری یساقی یساول یطانه یعقوب یقینا یقینی یلانه یمامه یمگان یمینی ینگجه ینیان یهودا یهودی یوجین یوحنا یورغه یورگن یوریک یوسفی یوسنی یوشکا یوشیج یومیه یونان یونجه یونسی یونند یونیت یونید یونیم یوهان یوگنی یکایک یکبار یکبند یکتنه یکجهت یکجور یکدست یکدفع یکدلی یکدگر یکذره یکراس یکرنگ یکریز یکسال یکسان یکسخن یکسره یکسری یکشاخ یکشبه یکشکل یکصدا یکضرب یکطرف یکطور یکعمر یکفاز یکفصل یکقدم یکقطب یکقلو یکلخت یکماه یکمشت یکمین یکنفس یکنوا یکنوع یکهوا یکوقت یکچشم یکچیز یگانه ییلاق`.split(" ")
+    ]);
+
+    const KEYBOARD_ROWS = [
+      ["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج","چ"],
+      ["ش","س","ی","ب","ل","ا","ت","ن","م","ک","گ"],
+      ["ظ","ط","ز","ر","ذ","د","پ","و","ژ","آ"]
+    ];
+
+    // Maps physical QWERTY key positions to the standard Persian layout.
+    // This makes hardware input work whether the operating-system layout is Persian or English.
+    const PHYSICAL_KEY_MAP = {
+      KeyQ: "ض", KeyW: "ص", KeyE: "ث", KeyR: "ق", KeyT: "ف", KeyY: "غ",
+      KeyU: "ع", KeyI: "ه", KeyO: "خ", KeyP: "ح", BracketLeft: "ج", BracketRight: "چ",
+      KeyA: "ش", KeyS: "س", KeyD: "ی", KeyF: "ب", KeyG: "ل", KeyH: "ا",
+      KeyJ: "ت", KeyK: "ن", KeyL: "م", Semicolon: "ک", Quote: "گ",
+      KeyZ: "ظ", KeyX: "ط", KeyC: "ز", KeyV: "ر", KeyB: "ذ", KeyN: "د",
+      KeyM: "پ", Comma: "و"
+    };
+
+    const PHYSICAL_SHIFT_KEY_MAP = {
+      KeyC: "ژ",
+      KeyH: "آ"
+    };
+
+    const PERSIAN_LETTERS = new Set(Array.from("اآبپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی"));
+    const STATE_RANK = { absent: 1, present: 2, correct: 3 };
+
+    const defaultStore = () => ({
+      stats: { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, distribution: [0,0,0,0,0,0] },
+      settings: { theme: "auto", highContrast: false },
+      daily: null,
+      random: null,
+      mode: "daily",
+      helpSeen: false
+    });
+
+    let store = loadStore();
+    let game = null;
+    let currentInput = [];
+    let locked = false;
+    let toastTimer = null;
+    let lastFocused = null;
+
+    const board = document.getElementById("board");
+    const keyboard = document.getElementById("keyboard");
+    const toast = document.getElementById("toast");
+    const modeButton = document.getElementById("modeButton");
+    const puzzleLabel = document.getElementById("puzzleLabel");
+    const newRandomButton = document.getElementById("newRandomButton");
+
+    function normalizePersian(value) {
+      return value
+        .normalize("NFKC")
+        .replace(/[يى]/g, "ی")
+        .replace(/ك/g, "ک")
+        .replace(/[أإٱ]/g, "ا")
+        .replace(/ؤ/g, "و")
+        .replace(/ئ/g, "ی")
+        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u200C\u200D\u0640\s]/g, "");
+    }
+
+    function letters(value) {
+      return Array.from(normalizePersian(value));
+    }
+
+    function localDateKey(date = new Date()) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function dailyNumber(date = new Date()) {
+      const epoch = new Date(2026, 0, 1);
+      const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      return Math.floor((today - epoch) / 86400000) + 1;
+    }
+
+    function hashString(text) {
+      let hash = 2166136261;
+      for (const ch of text) {
+        hash ^= ch.codePointAt(0);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+
+    function dailySolution(dateKey) {
+      return SOLUTIONS[hashString(`واژه:${dateKey}`) % SOLUTIONS.length];
+    }
+
+    function randomSolution(previous) {
+      let index;
+      if (globalThis.crypto?.getRandomValues) {
+        const value = new Uint32Array(1);
+        crypto.getRandomValues(value);
+        index = value[0] % SOLUTIONS.length;
+      } else {
+        index = Math.floor(Math.random() * SOLUTIONS.length);
+      }
+      if (SOLUTIONS.length > 1 && SOLUTIONS[index] === previous) index = (index + 1) % SOLUTIONS.length;
+      return SOLUTIONS[index];
+    }
+
+    function newGame(mode, solution) {
+      return {
+        mode,
+        date: mode === "daily" ? localDateKey() : null,
+        solution,
+        guesses: [],
+        evaluations: [],
+        status: "playing",
+        statsRecorded: false
+      };
+    }
+
+    function loadStore() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+        const parsed = JSON.parse(saved);
+        const base = defaultStore();
+        if (!parsed || typeof parsed !== "object") return base;
+        return {
+          ...base,
+          ...parsed,
+          stats: { ...base.stats, ...(parsed.stats || {}) },
+          settings: { ...base.settings, ...(parsed.settings || {}) }
+        };
+      } catch {
+        return defaultStore();
+      }
+    }
+
+    function saveStore() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch { /* private mode */ }
+    }
+
+    function ensureGames() {
+      const today = localDateKey();
+      if (!store.daily || store.daily.date !== today) {
+        store.daily = newGame("daily", dailySolution(today));
+      }
+      if (!store.random) store.random = newGame("random", randomSolution());
+      if (!['daily','random'].includes(store.mode)) store.mode = "daily";
+      game = store[store.mode];
+      saveStore();
+    }
+
+    function applyTheme() {
+      let dark;
+      if (store.settings.theme === "dark") dark = true;
+      else if (store.settings.theme === "light") dark = false;
+      else dark = matchMedia("(prefers-color-scheme: dark)").matches;
+
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+      document.querySelector('meta[name="theme-color"]').content = dark ? "#121722" : "#f4f1ea";
+      document.getElementById("darkSwitch").setAttribute("aria-checked", String(dark));
+
+      if (store.settings.highContrast) {
+        document.documentElement.style.setProperty("--correct", "#2463eb");
+        document.documentElement.style.setProperty("--present", "#e76f28");
+      } else {
+        document.documentElement.style.removeProperty("--correct");
+        document.documentElement.style.removeProperty("--present");
+      }
+      document.getElementById("contrastSwitch").setAttribute("aria-checked", String(store.settings.highContrast));
+    }
+
+    function renderBoard() {
+      board.textContent = "";
+      for (let rowIndex = 0; rowIndex < MAX_GUESSES; rowIndex++) {
+        const row = document.createElement("div");
+        row.className = "board-row";
+        row.dataset.row = String(rowIndex);
+        row.setAttribute("role", "row");
+
+        const completedGuess = game.guesses[rowIndex];
+        const activeLetters = rowIndex === game.guesses.length && game.status === "playing" ? currentInput : [];
+        const chars = completedGuess ? letters(completedGuess) : activeLetters;
+        const evaluation = game.evaluations[rowIndex] || [];
+
+        for (let col = 0; col < WORD_LENGTH; col++) {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          tile.setAttribute("role", "gridcell");
+          tile.dataset.col = String(col);
+          const ch = chars[col] || "";
+          tile.textContent = ch;
+          if (ch) tile.dataset.filled = "true";
+          if (evaluation[col]) tile.dataset.state = evaluation[col];
+          row.appendChild(tile);
+        }
+        board.appendChild(row);
+      }
+    }
+
+    function renderKeyboard() {
+      keyboard.textContent = "";
+      const known = getKeyboardStates();
+      KEYBOARD_ROWS.forEach(rowLetters => {
+        const row = document.createElement("div");
+        row.className = "keyboard-row";
+        rowLetters.forEach(letter => row.appendChild(makeKey(letter, letter, known[letter])));
+        keyboard.appendChild(row);
+      });
+
+      const controls = document.createElement("div");
+      controls.className = "keyboard-row";
+      controls.appendChild(makeKey("ثبت", "ENTER", null, true));
+      controls.appendChild(makeKey("حذف ⌫", "BACKSPACE", null, true));
+      keyboard.appendChild(controls);
+    }
+
+    function makeKey(label, value, state, wide = false) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `key${wide ? " wide" : ""}`;
+      button.textContent = label;
+      button.dataset.key = value;
+      button.setAttribute("aria-label", value === "ENTER" ? "ثبت حدس" : value === "BACKSPACE" ? "حذف حرف" : `حرف ${label}`);
+      if (state) button.dataset.state = state;
+      button.addEventListener("click", () => handleKey(value));
+      return button;
+    }
+
+    function getKeyboardStates() {
+      const states = {};
+      game.guesses.forEach((guess, row) => {
+        letters(guess).forEach((letter, col) => {
+          const state = game.evaluations[row][col];
+          if (!states[letter] || STATE_RANK[state] > STATE_RANK[states[letter]]) states[letter] = state;
+        });
+      });
+      return states;
+    }
+
+    function renderModeBar() {
+      if (store.mode === "daily") {
+        modeButton.textContent = "بازی روزانه";
+        puzzleLabel.textContent = `شمارهٔ ${toPersianDigits(dailyNumber())}`;
+        newRandomButton.hidden = true;
+      } else {
+        modeButton.textContent = "حالت تصادفی";
+        puzzleLabel.textContent = "بازی نامحدود";
+        newRandomButton.hidden = false;
+      }
+    }
+
+    function renderAll() {
+      renderBoard();
+      renderKeyboard();
+      renderModeBar();
+    }
+
+    function handleKey(rawKey) {
+      if (locked || game.status !== "playing") return;
+      const key = normalizePersian(rawKey);
+
+      if (rawKey === "ENTER") {
+        submitGuess();
+        return;
+      }
+      if (rawKey === "BACKSPACE") {
+        if (currentInput.length) {
+          currentInput.pop();
+          renderBoard();
+        }
+        return;
+      }
+      if (letters(key).length === 1 && PERSIAN_LETTERS.has(key) && currentInput.length < WORD_LENGTH) {
+        currentInput.push(key);
+        renderBoard();
+      }
+    }
+
+    function submitGuess() {
+      if (currentInput.length !== WORD_LENGTH) {
+        invalidRow("واژه باید پنج حرف داشته باشد");
+        return;
+      }
+
+      const guess = currentInput.join("");
+      if (!ALLOWED_GUESSES.has(guess)) {
+        invalidRow("این واژه در فهرست نیست");
+        return;
+      }
+
+      locked = true;
+      const rowIndex = game.guesses.length;
+      const evaluation = evaluateGuess(guess, game.solution);
+      game.guesses.push(guess);
+      game.evaluations.push(evaluation);
+      currentInput = [];
+      store[store.mode] = game;
+      saveStore();
+
+      renderBoard();
+      const row = board.querySelector(`[data-row="${rowIndex}"]`);
+      const tiles = Array.from(row.children);
+      tiles.forEach((tile, i) => {
+        setTimeout(() => {
+          tile.classList.add("flip");
+          setTimeout(() => { tile.dataset.state = evaluation[i]; }, 270);
+        }, i * 230);
+      });
+
+      setTimeout(() => {
+        if (guess === game.solution) {
+          game.status = "won";
+          row.classList.add("win");
+          recordStats(rowIndex + 1, true);
+          showToast(winMessage(rowIndex + 1), 2200);
+          setTimeout(() => openStats(), 850);
+        } else if (game.guesses.length >= MAX_GUESSES) {
+          game.status = "lost";
+          recordStats(null, false);
+          showToast(`واژه: ${game.solution}`, 3500);
+          setTimeout(() => openStats(), 900);
+        }
+        store[store.mode] = game;
+        saveStore();
+        locked = false;
+        renderKeyboard();
+      }, (WORD_LENGTH - 1) * 230 + 650);
+    }
+
+    function evaluateGuess(guess, solution) {
+      const g = letters(guess);
+      const s = letters(solution);
+      const result = Array(WORD_LENGTH).fill("absent");
+      const remaining = new Map();
+
+      for (let i = 0; i < WORD_LENGTH; i++) {
+        if (g[i] === s[i]) result[i] = "correct";
+        else remaining.set(s[i], (remaining.get(s[i]) || 0) + 1);
+      }
+      for (let i = 0; i < WORD_LENGTH; i++) {
+        if (result[i] === "correct") continue;
+        const count = remaining.get(g[i]) || 0;
+        if (count > 0) {
+          result[i] = "present";
+          remaining.set(g[i], count - 1);
+        }
+      }
+      return result;
+    }
+
+    function invalidRow(message) {
+      const row = board.querySelector(`[data-row="${game.guesses.length}"]`);
+      row.classList.remove("shake");
+      void row.offsetWidth;
+      row.classList.add("shake");
+      showToast(message);
+    }
+
+    function recordStats(attempt, won) {
+      if (game.statsRecorded) return;
+      const stats = store.stats;
+      stats.played += 1;
+      if (won) {
+        stats.wins += 1;
+        stats.currentStreak += 1;
+        stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+        stats.distribution[attempt - 1] += 1;
+      } else {
+        stats.currentStreak = 0;
+      }
+      game.statsRecorded = true;
+    }
+
+    function winMessage(attempt) {
+      return ["","شگفت‌انگیز!","عالی!","آفرین!","خوب بود!","نجات یافتی!","لب مرز!"][attempt];
+    }
+
+    function showToast(message, duration = 1800) {
+      clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = setTimeout(() => toast.classList.remove("show"), duration);
+    }
+
+    function switchMode() {
+      store.mode = store.mode === "daily" ? "random" : "daily";
+      game = store[store.mode];
+      currentInput = [];
+      saveStore();
+      renderAll();
+      showToast(store.mode === "daily" ? "بازی روزانه" : "حالت تصادفی");
+    }
+
+    function startNewRandom() {
+      const previous = store.random?.solution;
+      store.random = newGame("random", randomSolution(previous));
+      store.mode = "random";
+      game = store.random;
+      currentInput = [];
+      locked = false;
+      saveStore();
+      closeAllModals();
+      renderAll();
+      showToast("واژهٔ تازه آماده است");
+    }
+
+    function openModal(id) {
+      lastFocused = document.activeElement;
+      document.getElementById(id).hidden = false;
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => document.querySelector(`#${id} .close`)?.focus());
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).hidden = true;
+      if (![...document.querySelectorAll(".modal-backdrop")].some(m => !m.hidden)) document.body.style.overflow = "";
+      lastFocused?.focus?.();
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll(".modal-backdrop").forEach(m => { m.hidden = true; });
+      document.body.style.overflow = "";
+    }
+
+    function openStats() {
+      const stats = store.stats;
+      document.getElementById("playedStat").textContent = toPersianDigits(stats.played);
+      document.getElementById("winStat").textContent = toPersianDigits(stats.played ? Math.round(stats.wins / stats.played * 100) : 0);
+      document.getElementById("streakStat").textContent = toPersianDigits(stats.currentStreak);
+      document.getElementById("maxStreakStat").textContent = toPersianDigits(stats.maxStreak);
+
+      const resultWord = document.getElementById("resultWord");
+      if (game.status !== "playing") {
+        resultWord.hidden = false;
+        resultWord.textContent = `واژه: ${game.solution}`;
+      } else resultWord.hidden = true;
+
+      const distribution = document.getElementById("distribution");
+      distribution.textContent = "";
+      const max = Math.max(1, ...stats.distribution);
+      const winningAttempt = game.status === "won" ? game.guesses.length : -1;
+      stats.distribution.forEach((count, i) => {
+        const row = document.createElement("div");
+        row.className = "dist-row";
+        row.innerHTML = `<div class="dist-label">${toPersianDigits(i + 1)}</div><div class="dist-bar-wrap"><div class="dist-bar${winningAttempt === i + 1 ? " highlight" : ""}" style="width:${Math.max(8, count / max * 100)}%">${toPersianDigits(count)}</div></div>`;
+        distribution.appendChild(row);
+      });
+      document.getElementById("shareButton").disabled = game.status === "playing";
+      openModal("statsModal");
+    }
+
+    function buildShareText() {
+      if (game.status === "playing") return "";
+      const score = game.status === "won" ? `${game.guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
+      const title = game.mode === "daily" ? `واژه #${dailyNumber()}` : "واژه — حالت تصادفی";
+      const rows = game.evaluations.map(row => row.map(state => {
+        if (store.settings.highContrast) return state === "correct" ? "🟦" : state === "present" ? "🟧" : "⬛";
+        return state === "correct" ? "🟩" : state === "present" ? "🟨" : "⬛";
+      }).join("")).join("\n");
+      return `${title} ${score}\n\n${rows}`;
+    }
+
+    async function shareResult() {
+      const text = buildShareText();
+      if (!text) return;
+      try {
+        if (navigator.share) {
+          await navigator.share({ text });
+          return;
+        }
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const area = document.createElement("textarea");
+          area.value = text;
+          area.style.position = "fixed";
+          area.style.opacity = "0";
+          document.body.appendChild(area);
+          area.select();
+          document.execCommand("copy");
+          area.remove();
+        }
+        showToast("نتیجه کپی شد");
+      } catch (error) {
+        if (error?.name !== "AbortError") showToast("کپی نتیجه ممکن نشد");
+      }
+    }
+
+    function toggleDark() {
+      const currentlyDark = document.documentElement.dataset.theme === "dark";
+      store.settings.theme = currentlyDark ? "light" : "dark";
+      saveStore();
+      applyTheme();
+    }
+
+    function toggleSetting(name, button) {
+      store.settings[name] = !store.settings[name];
+      button.setAttribute("aria-checked", String(store.settings[name]));
+      saveStore();
+      applyTheme();
+    }
+
+    function toPersianDigits(value) {
+      return String(value).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
+    }
+
+    document.addEventListener("keydown", event => {
+      if (!document.querySelectorAll(".modal-backdrop:not([hidden])").length) {
+        if (event.key === "Enter" || event.code === "NumpadEnter") {
+          event.preventDefault();
+          handleKey("ENTER");
+          return;
+        }
+        if (event.key === "Backspace" || event.key === "Delete") {
+          event.preventDefault();
+          handleKey("BACKSPACE");
+          return;
+        }
+        if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+          let key = normalizePersian(event.key);
+          if (letters(key).length !== 1 || !PERSIAN_LETTERS.has(key)) {
+            key = (event.shiftKey && PHYSICAL_SHIFT_KEY_MAP[event.code])
+              || PHYSICAL_KEY_MAP[event.code]
+              || "";
+          }
+          if (letters(key).length === 1 && PERSIAN_LETTERS.has(key)) {
+            event.preventDefault();
+            handleKey(key);
+          }
+        }
+      } else if (event.key === "Escape") {
+        closeAllModals();
+      }
+    });
+
+    document.addEventListener("paste", event => {
+      if (game.status !== "playing" || locked) return;
+      const chars = letters(event.clipboardData?.getData("text") || "").filter(ch => PERSIAN_LETTERS.has(ch));
+      if (!chars.length) return;
+      event.preventDefault();
+      for (const ch of chars) {
+        if (currentInput.length >= WORD_LENGTH) break;
+        currentInput.push(ch);
+      }
+      renderBoard();
+    });
+
+    document.querySelectorAll("[data-close]").forEach(button => button.addEventListener("click", () => closeModal(button.dataset.close)));
+    document.querySelectorAll(".modal-backdrop").forEach(backdrop => backdrop.addEventListener("click", event => {
+      if (event.target === backdrop) closeModal(backdrop.id);
+    }));
+
+    document.getElementById("helpButton").addEventListener("click", () => openModal("helpModal"));
+    document.getElementById("statsButton").addEventListener("click", openStats);
+    document.getElementById("settingsButton").addEventListener("click", () => openModal("settingsModal"));
+    document.getElementById("themeButton").addEventListener("click", toggleDark);
+    document.getElementById("darkSwitch").addEventListener("click", toggleDark);
+    document.getElementById("contrastSwitch").addEventListener("click", event => toggleSetting("highContrast", event.currentTarget));
+    document.getElementById("shareButton").addEventListener("click", shareResult);
+    document.getElementById("statsNewRandomButton").addEventListener("click", startNewRandom);
+    modeButton.addEventListener("click", switchMode);
+    newRandomButton.addEventListener("click", startNewRandom);
+
+    matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => {
+      if (store.settings.theme === "auto") applyTheme();
+    });
+
+    ensureGames();
+    applyTheme();
+    renderAll();
+
+    if (!store.helpSeen) {
+      store.helpSeen = true;
+      saveStore();
+      openModal("helpModal");
+    }
+  </script>
+</body>
+<!--
+Third-party dictionary notices
+
+1) Jetbrain-spell-persian-words
+MIT License
+Copyright (c) 2024 Moein Aghamirzaei
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+2) word-list-fa
+The MIT License (MIT)
+
+Copyright for portions of project word-list-fa are held by
+Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+as part of project word-list.
+All other copyright for this project are held by Mo Valipour <valipour@gmail.com>.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+</html>
